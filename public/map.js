@@ -185,7 +185,6 @@ class IraqLeafletMap {
       };
 
       // Add layer control
-      
 
       // Add scale control
       L.control.scale({ position: "bottomleft" }).addTo(this.map);
@@ -597,68 +596,223 @@ class IraqLeafletMap {
       // Transform coordinates from UTM to WGS84
       const transformedGeoJSON = this.transformSharawaniCoordinates(geojson);
 
-      // Create layer group for this Sharawani layer
-      const layerGroup = L.layerGroup();
-
-      // Get color and icon for this layer
+      // Get color for this layer
       const layerColor =
         this.sharawaniColors[layerName] || this.getRandomColor();
-      const icon = this.createSharawaniIcon(layerName, layerColor);
 
-      // Create GeoJSON layer with custom styling for different geometry types
-      const geoJsonLayer = L.geoJSON(transformedGeoJSON, {
-        pointToLayer: (feature, latlng) => {
-          const marker = L.marker(latlng, {
-            icon: icon,
-            pane: "sharawaniPointPane", // Use point pane for highest z-index
-          });
-          // Set highest z-index for markers to appear on top of everything
-          marker.setZIndexOffset(2000);
-          return marker;
-        },
-        style: (feature) => {
-          // Style for polygon features (Suburbs, Cemeteries)
-          if (
-            feature.geometry.type === "MultiPolygon" ||
-            feature.geometry.type === "Polygon"
-          ) {
-            return {
-              fillColor: layerColor,
-              weight: 3,
-              opacity: 1,
-              color: "#ffffff",
-              dashArray: "",
-              fillOpacity: 0.7,
-              // Use polygon pane with lower z-index than points
-              pane: "sharawaniPolygonPane",
-            };
-          }
-          return {}; // No style needed for points (handled by pointToLayer)
-        },
-        onEachFeature: (feature, layer) =>
-          this.onEachSharawaniFeature(feature, layer, layerName),
-      });
-
-      // Add to layer group
-      layerGroup.addLayer(geoJsonLayer);
-
-      // Store references
-      this.sharawaniLayers.set(layerName, layerGroup);
-
-      // Add to map
-      layerGroup.addTo(this.map);
-
-      // Add to layer control
-      this.layerControl.addOverlay(
-        layerGroup,
-        this.getSharawaniDisplayName(layerName)
+      // Check if this layer should use clustering (point-based layers)
+      const shouldCluster = this.shouldUseClustering(
+        layerName,
+        transformedGeoJSON
       );
+
+      if (shouldCluster) {
+        // Use clustering for point-based layers (education, fuel stations, healthcare)
+        await this.loadSharawaniWithClustering(
+          layerName,
+          transformedGeoJSON,
+          layerColor
+        );
+      } else {
+        // Use regular layer group for polygon-based layers (suburbs, cemeteries)
+        await this.loadSharawaniAsRegularLayer(
+          layerName,
+          transformedGeoJSON,
+          layerColor
+        );
+      }
     } catch (error) {
       console.error(`Error loading Sharawani layer ${layerName}:`, error);
       this.showError(`Failed to load ${layerName}. Please check the server.`);
     } finally {
       this.showLoading(false);
     }
+  }
+
+  shouldUseClustering(layerName, geojson) {
+    // Use clustering for point-based service layers
+    const clusteringLayers = ["education", "Fuel Station", "Healthcare"];
+
+    if (clusteringLayers.includes(layerName)) {
+      return true;
+    }
+
+    // Also check if the data is primarily points
+    const pointFeatures = geojson.features.filter(
+      (f) => f.geometry.type === "Point"
+    );
+    const totalFeatures = geojson.features.length;
+
+    // If more than 80% are points and we have more than 10 features, use clustering
+    return pointFeatures.length / totalFeatures > 0.8 && totalFeatures > 10;
+  }
+
+  async loadSharawaniWithClustering(layerName, geojson, layerColor) {
+    console.log(
+      `🚀 Loading Sharawani layer with clustering: ${layerName} (${geojson.features.length} features)`
+    );
+    const startTime = performance.now();
+
+    // Create Sharawani-specific MarkerClusterGroup
+    const clusterGroup = L.markerClusterGroup({
+      chunkedLoading: true,
+      chunkProgress: (processed, total) => {
+        if (processed % 50 === 0 || processed === total) {
+          console.log(
+            `📊 Loading ${layerName}: ${processed}/${total} markers (${Math.round(
+              (processed / total) * 100
+            )}%)`
+          );
+        }
+      },
+      // Custom cluster icon for Sharawani layers
+      iconCreateFunction: (cluster) => {
+        const count = cluster.getChildCount();
+        return this.createSharawaniClusterIcon(count, layerName, layerColor);
+      },
+      // Optimized settings for Sharawani data
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true,
+      maxClusterRadius: 40, // Tighter clustering for service points
+      disableClusteringAtZoom: 17, // Higher zoom before unclustering
+    });
+
+    // Separate points and polygons
+    const pointFeatures = geojson.features.filter(
+      (f) => f.geometry.type === "Point"
+    );
+    const polygonFeatures = geojson.features.filter(
+      (f) => f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"
+    );
+
+    // Process point features with clustering
+    if (pointFeatures.length > 0) {
+      const markers = [];
+      const batchSize = 50; // Smaller batches for Sharawani data
+
+      const processBatch = (startIndex) => {
+        const endIndex = Math.min(startIndex + batchSize, pointFeatures.length);
+
+        for (let i = startIndex; i < endIndex; i++) {
+          const feature = pointFeatures[i];
+          const [lon, lat] = feature.geometry.coordinates;
+
+          const marker = L.marker([lat, lon], {
+            icon: this.createOptimizedSharawaniIcon(layerName, layerColor),
+          });
+
+          // Lazy-load popup content
+          marker.on("click", () => {
+            if (!marker.getPopup()) {
+              const popupContent = this.createSharawaniPopupContent(
+                feature.properties,
+                layerName
+              );
+              marker.bindPopup(popupContent, {
+                maxWidth: 300,
+                className: "custom-popup",
+              });
+            }
+            marker.openPopup();
+          });
+
+          markers.push(marker);
+        }
+
+        // Add batch to cluster group
+        clusterGroup.addLayers(markers.slice(startIndex, endIndex));
+
+        // Process next batch
+        if (endIndex < pointFeatures.length) {
+          setTimeout(() => processBatch(endIndex), 5);
+        } else {
+          // Points processing complete
+          const endTime = performance.now();
+          console.log(
+            `✅ Loaded ${
+              pointFeatures.length
+            } clustered points for ${layerName} in ${Math.round(
+              endTime - startTime
+            )}ms`
+          );
+
+          // Add cluster group to map
+          clusterGroup.addTo(this.map);
+          this.sharawaniLayers.set(layerName, clusterGroup);
+        }
+      };
+
+      processBatch(0);
+    }
+
+    // Handle polygon features separately (if any)
+    if (polygonFeatures.length > 0) {
+      const polygonLayer = L.geoJSON(
+        {
+          type: "FeatureCollection",
+          features: polygonFeatures,
+        },
+        {
+          style: {
+            fillColor: layerColor,
+            weight: 3,
+            opacity: 1,
+            color: "#ffffff",
+            dashArray: "",
+            fillOpacity: 0.7,
+            pane: "sharawaniPolygonPane",
+          },
+          onEachFeature: (feature, layer) =>
+            this.onEachSharawaniFeature(feature, layer, layerName),
+        }
+      );
+
+      polygonLayer.addTo(this.map);
+      // Note: For mixed layers, we store the cluster group as primary reference
+    }
+  }
+
+  async loadSharawaniAsRegularLayer(layerName, geojson, layerColor) {
+    console.log(`📍 Loading Sharawani layer as regular layer: ${layerName}`);
+
+    // Create regular layer group for polygon-based layers
+    const layerGroup = L.layerGroup();
+    const icon = this.createSharawaniIcon(layerName, layerColor);
+
+    const geoJsonLayer = L.geoJSON(geojson, {
+      pointToLayer: (feature, latlng) => {
+        const marker = L.marker(latlng, {
+          icon: icon,
+          pane: "sharawaniPointPane",
+        });
+        marker.setZIndexOffset(2000);
+        return marker;
+      },
+      style: (feature) => {
+        if (
+          feature.geometry.type === "MultiPolygon" ||
+          feature.geometry.type === "Polygon"
+        ) {
+          return {
+            fillColor: layerColor,
+            weight: 3,
+            opacity: 1,
+            color: "#ffffff",
+            dashArray: "",
+            fillOpacity: 0.7,
+            pane: "sharawaniPolygonPane",
+          };
+        }
+        return {};
+      },
+      onEachFeature: (feature, layer) =>
+        this.onEachSharawaniFeature(feature, layer, layerName),
+    });
+
+    layerGroup.addLayer(geoJsonLayer);
+    this.sharawaniLayers.set(layerName, layerGroup);
+    layerGroup.addTo(this.map);
   }
 
   transformSharawaniCoordinates(geojson) {
@@ -1067,48 +1221,99 @@ class IraqLeafletMap {
 
   loadCombinedDataset(datasetName, dataPoints) {
     try {
-      console.log(`Loading combined dataset: ${datasetName}`);
+      console.log(
+        `🚀 Loading combined dataset: ${datasetName} (${dataPoints.length} points)`
+      );
+      const startTime = performance.now();
 
       // Get color for this dataset
       const color =
         this.combinedColors[datasetName] || this.combinedColors.default;
 
-      // Create icon for this dataset
-      const icon = this.createCombinedIcon(datasetName, color);
-
-      // Create layer group for this dataset
-      const layerGroup = L.layerGroup();
-
-      // Add markers for each point
-      dataPoints.forEach((point) => {
-        const marker = L.marker([point.latitude, point.longitude], {
-          icon: icon,
-          pane: "sharawaniPointPane", // Use same high z-index pane as other points
-        });
-
-        marker.setZIndexOffset(2000);
-
-        // Create popup content
-        const popupContent = this.createCombinedPopupContent(
-          point,
-          datasetName
-        );
-        marker.bindPopup(popupContent, {
-          maxWidth: 300,
-          className: "custom-popup",
-          pane: "popupPane",
-        });
-
-        layerGroup.addLayer(marker);
+      // Create dataset-specific MarkerClusterGroup for better organization
+      const clusterGroup = L.markerClusterGroup({
+        // Cluster options for better performance
+        chunkedLoading: true, // Load markers in chunks to prevent UI blocking
+        chunkProgress: (processed, total) => {
+          if (processed % 500 === 0 || processed === total) {
+            console.log(
+              `📊 Loading progress for ${datasetName}: ${processed}/${total} markers (${Math.round(
+                (processed / total) * 100
+              )}%)`
+            );
+          }
+        },
+        // Custom cluster icon specific to this dataset
+        iconCreateFunction: (cluster) => {
+          const count = cluster.getChildCount();
+          return this.createDatasetClusterIcon(count, datasetName, color);
+        },
+        // Performance optimizations
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        maxClusterRadius: 60, // Slightly larger radius for dataset separation
+        disableClusteringAtZoom: 16, // Disable clustering at high zoom levels
       });
 
-      // Add to map and store reference
-      layerGroup.addTo(this.map);
-      this.combinedLayers.set(datasetName, layerGroup);
+      // Batch create markers for better performance
+      const markers = [];
+      const batchSize = 100; // Process in batches to avoid blocking UI
 
-      console.log(`✅ Loaded ${dataPoints.length} points for ${datasetName}`);
+      const processBatch = (startIndex) => {
+        const endIndex = Math.min(startIndex + batchSize, dataPoints.length);
+
+        for (let i = startIndex; i < endIndex; i++) {
+          const point = dataPoints[i];
+
+          // Create lightweight marker
+          const marker = L.marker([point.latitude, point.longitude], {
+            icon: this.createOptimizedCombinedIcon(datasetName, color),
+          });
+
+          // Lazy-load popup content (only create when needed)
+          marker.on("click", () => {
+            if (!marker.getPopup()) {
+              const popupContent = this.createCombinedPopupContent(
+                point,
+                datasetName
+              );
+              marker.bindPopup(popupContent, {
+                maxWidth: 300,
+                className: "custom-popup",
+              });
+            }
+            marker.openPopup();
+          });
+
+          markers.push(marker);
+        }
+
+        // Add batch to cluster group
+        clusterGroup.addLayers(markers.slice(startIndex, endIndex));
+
+        // Process next batch asynchronously to prevent UI blocking
+        if (endIndex < dataPoints.length) {
+          setTimeout(() => processBatch(endIndex), 10);
+        } else {
+          // All markers processed
+          const endTime = performance.now();
+          console.log(
+            `✅ Loaded ${
+              dataPoints.length
+            } points for ${datasetName} in ${Math.round(endTime - startTime)}ms`
+          );
+
+          // Add to map and store reference
+          clusterGroup.addTo(this.map);
+          this.combinedLayers.set(datasetName, clusterGroup);
+        }
+      };
+
+      // Start processing batches
+      processBatch(0);
     } catch (error) {
-      console.error(`Error loading combined dataset ${datasetName}:`, error);
+      console.error(`❌ Error loading combined dataset ${datasetName}:`, error);
     }
   }
 
@@ -1146,6 +1351,190 @@ class IraqLeafletMap {
       iconAnchor: [11, 11],
       popupAnchor: [0, -11],
     });
+  }
+
+  createOptimizedCombinedIcon(datasetName, color) {
+    // Cache icons to avoid recreating them
+    const cacheKey = `${datasetName}-${color}`;
+    if (!this._iconCache) {
+      this._iconCache = new Map();
+    }
+
+    if (this._iconCache.has(cacheKey)) {
+      return this._iconCache.get(cacheKey);
+    }
+
+    const iconMap = {
+      HERA: "🏛️",
+      "HERA (Orchards)": "🌳",
+      "HERA (Wheat)": "🌾",
+      Compost: "♻️",
+      Investment: "💰",
+      "Investment Short": "💰",
+      "IQ Air": "🌬️",
+      default: "📊",
+    };
+
+    const icon = iconMap[datasetName] || iconMap.default;
+
+    // Create optimized icon with minimal DOM
+    const optimizedIcon = L.divIcon({
+      html: `<span style="font-size:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))">${icon}</span>`,
+      className: "optimized-marker",
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+      popupAnchor: [0, -10],
+    });
+
+    this._iconCache.set(cacheKey, optimizedIcon);
+    return optimizedIcon;
+  }
+
+  createDatasetClusterIcon(count, datasetName, color) {
+    // Get dataset-specific icon and styling
+    const iconMap = {
+      HERA: "🏛️",
+      "HERA (Orchards)": "🌳",
+      "HERA (Wheat)": "🌾",
+      Compost: "♻️",
+      Investment: "💰",
+      "Investment Short": "💰",
+      "IQ Air": "🌬️",
+      default: "📊",
+    };
+
+    const datasetIcon = iconMap[datasetName] || iconMap.default;
+
+    // Size classes based on count
+    let sizeClass = "small";
+    let iconSize = 35;
+    if (count > 100) {
+      sizeClass = "large";
+      iconSize = 50;
+    } else if (count > 10) {
+      sizeClass = "medium";
+      iconSize = 42;
+    }
+
+    // Create dataset-themed cluster
+    return L.divIcon({
+      html: `<div class="dataset-cluster-${sizeClass}" style="
+        background-color: ${color};
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        width: ${iconSize}px;
+        height: ${iconSize}px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        color: white;
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      ">
+        <div style="font-size: ${
+          iconSize > 40 ? "16px" : "14px"
+        }; line-height: 1;">${datasetIcon}</div>
+        <div style="font-size: ${
+          iconSize > 40 ? "12px" : "10px"
+        }; line-height: 1; margin-top: 1px;">${count}</div>
+      </div>`,
+      className: `dataset-cluster dataset-cluster-${datasetName
+        .toLowerCase()
+        .replace(/\s+/g, "-")}`,
+      iconSize: [iconSize, iconSize],
+      iconAnchor: [iconSize / 2, iconSize / 2],
+    });
+  }
+
+  createSharawaniClusterIcon(count, layerName, color) {
+    // Get Sharawani-specific icon and styling
+    const iconMap = {
+      Cemetary: "⛼",
+      education: "🎓",
+      "Fuel Station": "⛽",
+      Healthcare: "🏥",
+      Suburbs: "🏘️",
+    };
+
+    const layerIcon = iconMap[layerName] || "📍";
+
+    // Size classes based on count (smaller clusters for service points)
+    let sizeClass = "small";
+    let iconSize = 32;
+    if (count > 50) {
+      sizeClass = "large";
+      iconSize = 45;
+    } else if (count > 10) {
+      sizeClass = "medium";
+      iconSize = 38;
+    }
+
+    // Create Sharawani-themed cluster
+    return L.divIcon({
+      html: `<div class="sharawani-cluster-${sizeClass}" style="
+        background-color: ${color};
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        width: ${iconSize}px;
+        height: ${iconSize}px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        color: white;
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      ">
+        <div style="font-size: ${
+          iconSize > 35 ? "14px" : "12px"
+        }; line-height: 1;">${layerIcon}</div>
+        <div style="font-size: ${
+          iconSize > 35 ? "10px" : "9px"
+        }; line-height: 1; margin-top: 1px;">${count}</div>
+      </div>`,
+      className: `sharawani-cluster sharawani-cluster-${layerName
+        .toLowerCase()
+        .replace(/\s+/g, "-")}`,
+      iconSize: [iconSize, iconSize],
+      iconAnchor: [iconSize / 2, iconSize / 2],
+    });
+  }
+
+  createOptimizedSharawaniIcon(layerName, color) {
+    // Cache icons to avoid recreating them
+    const cacheKey = `sharawani-${layerName}-${color}`;
+    if (!this._iconCache) {
+      this._iconCache = new Map();
+    }
+
+    if (this._iconCache.has(cacheKey)) {
+      return this._iconCache.get(cacheKey);
+    }
+
+    const iconMap = {
+      Cemetary: "⛼",
+      education: "🎓",
+      "Fuel Station": "⛽",
+      Healthcare: "🏥",
+      Suburbs: "🏘️",
+    };
+
+    const icon = iconMap[layerName] || "📍";
+
+    // Create optimized icon with minimal DOM
+    const optimizedIcon = L.divIcon({
+      html: `<span style="font-size:18px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4))">${icon}</span>`,
+      className: "optimized-sharawani-marker",
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+      popupAnchor: [0, -12],
+    });
+
+    this._iconCache.set(cacheKey, optimizedIcon);
+    return optimizedIcon;
   }
 
   createCombinedPopupContent(point, datasetName) {
