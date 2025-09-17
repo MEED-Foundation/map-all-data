@@ -5,17 +5,17 @@ class IraqLeafletMap {
     this.layerGroups = new Map();
     this.sharawaniLayers = new Map();
     this.layerColors = {
-      irq_admbnda_adm0_cso_itos_20190603: "#e74c3c",
-      irq_admbnda_adm1_cso_20190603: "#3498db",
-      irq_admbnda_adm2_cso_20190603: "#2ecc71",
-      irq_admbnda_adm3_cso_20190603: "#f39c12",
+      irq_admbnda_adm0_cso_itos_20190603: "#2c3e50", // Dark blue-gray
+      irq_admbnda_adm1_cso_20190603: "#34495e", // Medium gray
+      irq_admbnda_adm2_cso_20190603: "#7f8c8d", // Light gray
+      irq_admbnda_adm3_cso_20190603: "#95a5a6", // Lighter gray
     };
     this.sharawaniColors = {
-      Cemetary: "#8b4513",
-      education: "#4a90e2",
-      "Fuel Station": "#f39c12",
-      Healthcare: "#e74c3c",
-      Suburbs: "#9b59b6",
+      Cemetary: "#6c757d", // Professional gray
+      education: "#0d6efd", // Professional blue
+      "Fuel Station": "#fd7e14", // Professional orange
+      Healthcare: "#dc3545", // Professional red
+      Suburbs: "#6f42c1", // Professional purple
     };
 
     // Define coordinate system transformations
@@ -47,23 +47,23 @@ class IraqLeafletMap {
   }
 
   async init() {
-    console.log("🗺️ Initializing Iraq Map...");
+    console.log("Initializing Iraq Map...");
     this.showLoading(true);
 
     try {
       await this.initMap();
-      console.log("✅ Map initialized");
+      console.log("Map initialized successfully");
 
       await this.loadAvailableLayers();
-      console.log("✅ Administrative layers loaded");
+      console.log("Administrative layers loaded");
 
       await this.loadSharawaniLayers();
-      console.log("✅ Sharawani layers loaded");
+      console.log("Sharawani layers loaded");
 
       this.setupGlobalControls();
-      console.log("✅ Global controls setup");
+      console.log("Global controls setup complete");
     } catch (error) {
-      console.error("❌ Error during initialization:", error);
+      console.error("Error during initialization:", error);
       this.showError(`Initialization failed: ${error.message}`);
     } finally {
       this.showLoading(false);
@@ -99,12 +99,14 @@ class IraqLeafletMap {
 
         // Update button text temporarily
         const originalText = loadEverythingBtn.textContent;
-        loadEverythingBtn.textContent = "✅ Loading All...";
+        loadEverythingBtn.textContent = "Loading...";
         loadEverythingBtn.disabled = true;
+        loadEverythingBtn.style.background = "#6c757d";
 
         setTimeout(() => {
           loadEverythingBtn.textContent = originalText;
           loadEverythingBtn.disabled = false;
+          loadEverythingBtn.style.background = "#2c3e50";
         }, 2000);
       });
     }
@@ -172,6 +174,20 @@ class IraqLeafletMap {
       // Add scale control
       L.control.scale({ position: "bottomleft" }).addTo(this.map);
 
+      // Create custom panes for Sharawani layers with different z-indexes
+      this.map.createPane("sharawaniPolygonPane");
+      this.map.getPane("sharawaniPolygonPane").style.zIndex = 450; // Just above overlayPane (400)
+      this.map.getPane("sharawaniPolygonPane").style.pointerEvents = "auto";
+
+      this.map.createPane("sharawaniPointPane");
+      this.map.getPane("sharawaniPointPane").style.zIndex = 1000; // Much higher for points
+      this.map.getPane("sharawaniPointPane").style.pointerEvents = "auto";
+
+      // Create custom pane for popups with highest z-index
+      this.map.createPane("popupPane");
+      this.map.getPane("popupPane").style.zIndex = 2000; // Highest z-index for popups
+      this.map.getPane("popupPane").style.pointerEvents = "auto";
+
       resolve();
     });
   }
@@ -194,14 +210,14 @@ class IraqLeafletMap {
       buttonContainer.style.marginBottom = "10px";
 
       const loadAllBtn = document.createElement("button");
-      loadAllBtn.textContent = "📥 Load All";
+      loadAllBtn.textContent = "Load All";
       loadAllBtn.style.cssText =
-        "margin-right: 5px; padding: 4px 8px; font-size: 0.8em; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;";
+        "margin-right: 8px; padding: 6px 12px; font-size: 0.8em; background: #0d6efd; color: white; border: 1px solid #0d6efd; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
 
       const clearAllBtn = document.createElement("button");
-      clearAllBtn.textContent = "🗑️ Clear All";
+      clearAllBtn.textContent = "Clear All";
       clearAllBtn.style.cssText =
-        "padding: 4px 8px; font-size: 0.8em; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer;";
+        "padding: 6px 12px; font-size: 0.8em; background: #dc3545; color: white; border: 1px solid #dc3545; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
 
       buttonContainer.appendChild(loadAllBtn);
       buttonContainer.appendChild(clearAllBtn);
@@ -286,14 +302,14 @@ class IraqLeafletMap {
       sharawaniButtonContainer.style.marginBottom = "10px";
 
       const loadAllSharawaniBtn = document.createElement("button");
-      loadAllSharawaniBtn.textContent = "📥 Load All";
+      loadAllSharawaniBtn.textContent = "Load All";
       loadAllSharawaniBtn.style.cssText =
-        "margin-right: 5px; padding: 4px 8px; font-size: 0.8em; background: #9b59b6; color: white; border: none; border-radius: 3px; cursor: pointer;";
+        "margin-right: 8px; padding: 6px 12px; font-size: 0.8em; background: #6f42c1; color: white; border: 1px solid #6f42c1; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
 
       const clearAllSharawaniBtn = document.createElement("button");
-      clearAllSharawaniBtn.textContent = "🗑️ Clear All";
+      clearAllSharawaniBtn.textContent = "Clear All";
       clearAllSharawaniBtn.style.cssText =
-        "padding: 4px 8px; font-size: 0.8em; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer;";
+        "padding: 6px 12px; font-size: 0.8em; background: #dc3545; color: white; border: 1px solid #dc3545; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
 
       sharawaniButtonContainer.appendChild(loadAllSharawaniBtn);
       sharawaniButtonContainer.appendChild(clearAllSharawaniBtn);
@@ -433,7 +449,13 @@ class IraqLeafletMap {
       // Create GeoJSON layer with custom styling for different geometry types
       const geoJsonLayer = L.geoJSON(transformedGeoJSON, {
         pointToLayer: (feature, latlng) => {
-          return L.marker(latlng, { icon: icon });
+          const marker = L.marker(latlng, {
+            icon: icon,
+            pane: "sharawaniPointPane", // Use point pane for highest z-index
+          });
+          // Set highest z-index for markers to appear on top of everything
+          marker.setZIndexOffset(2000);
+          return marker;
         },
         style: (feature) => {
           // Style for polygon features (Suburbs, Cemeteries)
@@ -443,11 +465,13 @@ class IraqLeafletMap {
           ) {
             return {
               fillColor: layerColor,
-              weight: 2,
+              weight: 3,
               opacity: 1,
               color: "#ffffff",
               dashArray: "",
-              fillOpacity: 0.6,
+              fillOpacity: 0.7,
+              // Use polygon pane with lower z-index than points
+              pane: "sharawaniPolygonPane",
             };
           }
           return {}; // No style needed for points (handled by pointToLayer)
@@ -600,44 +624,31 @@ class IraqLeafletMap {
   }
 
   createSharawaniIcon(layerName, color) {
-    const iconMap = {
-      Cemetary: "⚰️",
-      education: "🎓",
-      "Fuel Station": "⛽",
-      Healthcare: "🏥",
-      Suburbs: "🏘️",
-    };
-
-    const iconText = iconMap[layerName] || "📍";
-
     return L.divIcon({
       html: `<div style="
         background-color: ${color}; 
-        width: 24px; 
-        height: 24px; 
+        width: 16px; 
+        height: 16px; 
         border-radius: 50%; 
-        border: 2px solid white; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        display: flex; 
-        align-items: center; 
-        justify-content: center;
-        font-size: 12px;
-      ">${iconText}</div>`,
-      className: "custom-marker",
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-      popupAnchor: [0, -12],
+        border: 3px solid white; 
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        position: relative;
+      "></div>`,
+      className: "simple-marker",
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+      popupAnchor: [0, -8],
     });
   }
 
   getFeatureStyle(feature, baseColor) {
     return {
       fillColor: baseColor,
-      weight: 2,
-      opacity: 1,
+      weight: 1.5,
+      opacity: 0.6,
       color: "#ffffff",
       dashArray: "",
-      fillOpacity: 0.6,
+      fillOpacity: 0.25,
     };
   }
 
@@ -649,6 +660,7 @@ class IraqLeafletMap {
     layer.bindPopup(popupContent, {
       maxWidth: 300,
       className: "custom-popup",
+      pane: "popupPane",
     });
 
     // Add hover effects
@@ -667,12 +679,60 @@ class IraqLeafletMap {
     layer.bindPopup(popupContent, {
       maxWidth: 300,
       className: "custom-popup",
+      pane: "popupPane",
     });
 
-    // Add click handler
+    // Add interaction handlers
     layer.on({
       click: (e) => this.onSharawaniFeatureClick(e, props, layerName),
+      mouseover: (e) => this.highlightSharawaniFeature(e, layerName),
+      mouseout: (e) => this.resetSharawaniHighlight(e, layerName),
     });
+  }
+
+  highlightSharawaniFeature(e, layerName) {
+    const layer = e.target;
+    const layerColor = this.sharawaniColors[layerName] || this.getRandomColor();
+
+    // Only highlight if it's a polygon (markers don't need highlighting)
+    if (
+      layer.feature &&
+      (layer.feature.geometry.type === "MultiPolygon" ||
+        layer.feature.geometry.type === "Polygon")
+    ) {
+      layer.setStyle({
+        weight: 4,
+        color: "#2c3e50",
+        dashArray: "",
+        fillOpacity: 0.9,
+        fillColor: this.lightenColor(layerColor, 0.3),
+      });
+
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+      }
+    }
+  }
+
+  resetSharawaniHighlight(e, layerName) {
+    const layer = e.target;
+    const layerColor = this.sharawaniColors[layerName] || this.getRandomColor();
+
+    // Only reset style if it's a polygon
+    if (
+      layer.feature &&
+      (layer.feature.geometry.type === "MultiPolygon" ||
+        layer.feature.geometry.type === "Polygon")
+    ) {
+      layer.setStyle({
+        fillColor: layerColor,
+        weight: 3,
+        opacity: 1,
+        color: "#ffffff",
+        dashArray: "",
+        fillOpacity: 0.7,
+      });
+    }
   }
 
   createPopupContent(properties) {
@@ -779,10 +839,10 @@ class IraqLeafletMap {
     const layer = e.target;
 
     layer.setStyle({
-      weight: 4,
+      weight: 3,
       color: "#2c3e50",
       dashArray: "",
-      fillOpacity: 0.8,
+      fillOpacity: 0.5,
     });
 
     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
@@ -798,15 +858,8 @@ class IraqLeafletMap {
   }
 
   onFeatureClick(e, properties) {
-    // Update info panel
+    // Update info panel only - no automatic zooming
     this.showFeatureInfo(properties);
-
-    // Zoom to feature bounds
-    const layer = e.target;
-    this.map.fitBounds(layer.getBounds(), {
-      padding: [20, 20],
-      maxZoom: 10,
-    });
   }
 
   onSharawaniFeatureClick(e, properties, layerName) {
@@ -917,11 +970,11 @@ class IraqLeafletMap {
 
   getSharawaniDisplayName(layerName) {
     const nameMap = {
-      Cemetary: "🪦 Cemeteries",
-      education: "🎓 Education Facilities",
-      "Fuel Station": "⛽ Fuel Stations",
-      Healthcare: "🏥 Healthcare Facilities",
-      Suburbs: "🏘️ Suburbs",
+      Cemetary: "Cemeteries",
+      education: "Education Facilities",
+      "Fuel Station": "Fuel Stations",
+      Healthcare: "Healthcare Facilities",
+      Suburbs: "Suburbs",
     };
 
     return (

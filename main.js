@@ -176,11 +176,11 @@ function getAdminLevel(filename) {
 // Helper function to format Sharawani layer names
 function formatSharawaniName(filename) {
   const nameMap = {
-    Cemetary: "🪦 Cemeteries",
-    education: "🎓 Education Facilities",
-    "Fuel Station": "⛽ Fuel Stations",
-    Healthcare: "🏥 Healthcare Facilities",
-    Suburbs: "🏘️ Suburbs",
+    Cemetary: "Cemeteries",
+    education: "Education Facilities",
+    "Fuel Station": "Fuel Stations",
+    Healthcare: "Healthcare Facilities",
+    Suburbs: "Suburbs",
   };
 
   return (
