@@ -1,0 +1,27 @@
+{
+  "name": "map-all-data",
+  "version": "1.0.0",
+  "description": "Interactive map visualization for Iraqi administrative data",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon main.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ejs": "^3.1.9",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "map",
+    "shapefile",
+    "echarts",
+    "leaflet",
+    "iraq"
+  ],
+  "author": "",
+  "license": "ISC"
+}

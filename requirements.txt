@@ -1,0 +1,8 @@
+# Python dependencies for shapefile to GeoJSON conversion
+geopandas>=0.13.0
+fiona>=1.9.0
+pyproj>=3.5.0
+shapely>=2.0.0
+
+# Optional: for better performance
+rtree>=1.0.0
