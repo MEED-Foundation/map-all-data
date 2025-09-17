@@ -185,15 +185,7 @@ class IraqLeafletMap {
       };
 
       // Add layer control
-      this.layerControl = L.control.layers(
-        baseLayers,
-        {},
-        {
-          position: "topright",
-          collapsed: false,
-        }
-      );
-      this.layerControl.addTo(this.map);
+      
 
       // Add scale control
       L.control.scale({ position: "bottomleft" }).addTo(this.map);
@@ -349,19 +341,37 @@ class IraqLeafletMap {
         checkbox.value = sharawaniFile.name;
         checkbox.checked = false; // None checked by default
 
+        // Get the icon for this layer
+        const iconMap = {
+          Cemetary: "⛼",
+          education: "🎓",
+          "Fuel Station": "⛽",
+          Healthcare: "🏥",
+          Suburbs: "🏘️",
+        };
+        const icon = iconMap[sharawaniFile.name] || "📍";
+
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "layer-icon";
+        iconSpan.textContent = icon;
+        iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
+
         const label = document.createElement("label");
         label.htmlFor = `sharawani-${sharawaniFile.name}`;
         label.textContent = sharawaniFile.displayName;
 
         layerItem.appendChild(checkbox);
+        layerItem.appendChild(iconSpan);
         layerItem.appendChild(label);
         sharawaniControls.appendChild(layerItem);
 
         checkbox.addEventListener("change", (e) => {
           if (e.target.checked) {
             this.loadSharawaniLayer(sharawaniFile.name);
+            iconSpan.style.filter = "none"; // Show in color
           } else {
             this.hideSharawaniLayer(sharawaniFile.name);
+            iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
           }
         });
       });
@@ -370,9 +380,11 @@ class IraqLeafletMap {
       loadAllSharawaniBtn.addEventListener("click", () => {
         sharawaniFiles.forEach((file) => {
           const checkbox = document.getElementById(`sharawani-${file.name}`);
+          const iconSpan = checkbox?.parentElement.querySelector(".layer-icon");
           if (checkbox && !checkbox.checked) {
             checkbox.checked = true;
             this.loadSharawaniLayer(file.name);
+            if (iconSpan) iconSpan.style.filter = "none"; // Show in color
           }
         });
       });
@@ -380,9 +392,11 @@ class IraqLeafletMap {
       clearAllSharawaniBtn.addEventListener("click", () => {
         sharawaniFiles.forEach((file) => {
           const checkbox = document.getElementById(`sharawani-${file.name}`);
+          const iconSpan = checkbox?.parentElement.querySelector(".layer-icon");
           if (checkbox && checkbox.checked) {
             checkbox.checked = false;
             this.hideSharawaniLayer(file.name);
+            if (iconSpan) iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
           }
         });
       });
@@ -447,11 +461,27 @@ class IraqLeafletMap {
         checkbox.id = `combined-${dataset}`;
         checkbox.value = dataset;
 
+        // Get the icon for this dataset
+        const iconMap = {
+          HERA: "🏛️",
+          Compost: "♻️",
+          Investment: "💰",
+          "IQ Air": "🌬️",
+          default: "📊",
+        };
+        const icon = iconMap[dataset] || iconMap.default;
+
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "layer-icon";
+        iconSpan.textContent = icon;
+        iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
+
         const label = document.createElement("label");
         label.htmlFor = checkbox.id;
         label.textContent = `${dataset} (${datasetGroups[dataset].length} points)`;
 
         layerItem.appendChild(checkbox);
+        layerItem.appendChild(iconSpan);
         layerItem.appendChild(label);
         combinedControls.appendChild(layerItem);
 
@@ -459,8 +489,10 @@ class IraqLeafletMap {
         checkbox.addEventListener("change", (e) => {
           if (e.target.checked) {
             this.loadCombinedDataset(dataset, datasetGroups[dataset]);
+            iconSpan.style.filter = "none"; // Show in color
           } else {
             this.hideCombinedDataset(dataset);
+            iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
           }
         });
       });
@@ -469,9 +501,11 @@ class IraqLeafletMap {
       loadAllCombinedBtn.addEventListener("click", () => {
         Object.keys(datasetGroups).forEach((dataset) => {
           const checkbox = document.getElementById(`combined-${dataset}`);
+          const iconSpan = checkbox?.parentElement.querySelector(".layer-icon");
           if (checkbox && !checkbox.checked) {
             checkbox.checked = true;
             this.loadCombinedDataset(dataset, datasetGroups[dataset]);
+            if (iconSpan) iconSpan.style.filter = "none"; // Show in color
           }
         });
       });
@@ -479,9 +513,11 @@ class IraqLeafletMap {
       clearAllCombinedBtn.addEventListener("click", () => {
         Object.keys(datasetGroups).forEach((dataset) => {
           const checkbox = document.getElementById(`combined-${dataset}`);
+          const iconSpan = checkbox?.parentElement.querySelector(".layer-icon");
           if (checkbox && checkbox.checked) {
             checkbox.checked = false;
             this.hideCombinedDataset(dataset);
+            if (iconSpan) iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
           }
         });
       });
@@ -747,20 +783,31 @@ class IraqLeafletMap {
   }
 
   createSharawaniIcon(layerName, color) {
+    const iconMap = {
+      Cemetary: "⛼", // Cemetery symbol
+      education: "🎓", // Graduation cap
+      "Fuel Station": "⛽", // Fuel pump
+      Healthcare: "🏥", // Hospital
+      Suburbs: "🏘️", // Houses
+    };
+
+    const icon = iconMap[layerName] || "📍";
+
     return L.divIcon({
       html: `<div style="
-        background-color: ${color}; 
-        width: 16px; 
-        height: 16px; 
-        border-radius: 50%; 
-        border: 3px solid white; 
-        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-        position: relative;
-      "></div>`,
-      className: "simple-marker",
-      iconSize: [16, 16],
-      iconAnchor: [8, 8],
-      popupAnchor: [0, -8],
+        background: transparent; 
+        width: 24px; 
+        height: 24px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+      ">${icon}</div>`,
+      className: "category-marker",
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+      popupAnchor: [0, -12],
     });
   }
 
@@ -1073,20 +1120,31 @@ class IraqLeafletMap {
   }
 
   createCombinedIcon(datasetName, color) {
+    const iconMap = {
+      HERA: "🏛️", // Classical building for heritage/archaeology
+      Compost: "♻️", // Recycling symbol for composting
+      Investment: "💰", // Money bag for investment
+      "IQ Air": "🌬️", // Wind for air quality
+      default: "📊", // Chart for general data
+    };
+
+    const icon = iconMap[datasetName] || iconMap.default;
+
     return L.divIcon({
       html: `<div style="
-        background-color: ${color}; 
-        width: 14px; 
-        height: 14px; 
-        border-radius: 50%; 
-        border: 2px solid white; 
-        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-        position: relative;
-      "></div>`,
-      className: "combined-marker",
-      iconSize: [14, 14],
-      iconAnchor: [7, 7],
-      popupAnchor: [0, -7],
+        background: transparent; 
+        width: 22px; 
+        height: 22px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+      ">${icon}</div>`,
+      className: "dataset-marker",
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
+      popupAnchor: [0, -11],
     });
   }
 

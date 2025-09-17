@@ -1,7 +1,6 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const XLSX = require("xlsx");
 const cors = require("cors");
 
 const app = express();
@@ -165,33 +164,29 @@ app.get("/api/sharawani/:filename", async (req, res) => {
   }
 });
 
-// API endpoint to serve Combined.xlsx data
+// API endpoint to serve Combined GeoJSON data (much faster than Excel!)
 app.get("/api/combined-data", (req, res) => {
   try {
-    const filePath = path.join(__dirname, "datasets", "Combined.xlsx");
+    const geojsonPath = path.join(__dirname, "datasets", "Combined.geojson");
 
-    if (!fs.existsSync(filePath)) {
+    if (!fs.existsSync(geojsonPath)) {
       return res.status(404).json({
-        error: "Combined.xlsx file not found.",
+        error:
+          "Combined.geojson file not found. Please run the conversion script first.",
       });
     }
 
-    // Read the Excel file
-    const workbook = XLSX.readFile(filePath);
-    const sheetName = workbook.SheetNames[0]; // Use first sheet
-    const worksheet = workbook.Sheets[sheetName];
-    const data = XLSX.utils.sheet_to_json(worksheet);
+    // Read the GeoJSON file (much faster than parsing Excel)
+    const geojsonData = fs.readFileSync(geojsonPath, "utf8");
+    const geojson = JSON.parse(geojsonData);
 
-    // Filter and format the data to only include required columns
-    const formattedData = data
-      .filter((row) => row.Name && row.Latitude && row.Longitude && row.Dataset)
-      .map((row) => ({
-        name: row.Name,
-        latitude: parseFloat(row.Latitude),
-        longitude: parseFloat(row.Longitude),
-        dataset: row.Dataset,
-      }))
-      .filter((row) => !isNaN(row.latitude) && !isNaN(row.longitude));
+    // Extract data in the same format expected by the frontend
+    const formattedData = geojson.features.map((feature) => ({
+      name: feature.properties.name,
+      latitude: feature.properties.latitude,
+      longitude: feature.properties.longitude,
+      dataset: feature.properties.dataset,
+    }));
 
     res.json({
       success: true,
@@ -199,8 +194,8 @@ app.get("/api/combined-data", (req, res) => {
       data: formattedData,
     });
   } catch (error) {
-    console.error("Error reading Combined.xlsx:", error);
-    res.status(500).json({ error: "Error reading Combined.xlsx file" });
+    console.error("Error reading Combined.geojson:", error);
+    res.status(500).json({ error: "Error reading Combined.geojson file" });
   }
 });
 
