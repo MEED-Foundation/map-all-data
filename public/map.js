@@ -4,6 +4,7 @@ class IraqLeafletMap {
     this.loadedLayers = new Map();
     this.layerGroups = new Map();
     this.sharawaniLayers = new Map();
+    this.combinedLayers = new Map();
     this.layerColors = {
       irq_admbnda_adm0_cso_itos_20190603: "#2c3e50", // Dark blue-gray
       irq_admbnda_adm1_cso_20190603: "#34495e", // Medium gray
@@ -16,6 +17,15 @@ class IraqLeafletMap {
       "Fuel Station": "#fd7e14", // Professional orange
       Healthcare: "#dc3545", // Professional red
       Suburbs: "#6f42c1", // Professional purple
+    };
+
+    this.combinedColors = {
+      // Default colors for different datasets - will be expanded dynamically
+      default: "#17a2b8", // Professional teal
+      HERA: "#28a745", // Professional green
+      Compost: "#ffc107", // Professional yellow
+      Investment: "#e83e8c", // Professional pink
+      "IQ Air": "#6610f2", // Professional indigo
     };
 
     // Define coordinate system transformations
@@ -60,6 +70,9 @@ class IraqLeafletMap {
       await this.loadSharawaniLayers();
       console.log("Sharawani layers loaded");
 
+      await this.loadCombinedData();
+      console.log("Combined dataset loaded");
+
       this.setupGlobalControls();
       console.log("Global controls setup complete");
     } catch (error) {
@@ -94,6 +107,17 @@ class IraqLeafletMap {
             checkbox.checked = true;
             const layerName = checkbox.value;
             this.loadSharawaniLayer(layerName);
+          }
+        });
+
+        // Load all Combined dataset layers
+        const combinedCheckboxes =
+          document.querySelectorAll('[id^="combined-"]');
+        combinedCheckboxes.forEach((checkbox) => {
+          if (!checkbox.checked) {
+            checkbox.checked = true;
+            // Trigger the change event to load the dataset
+            checkbox.dispatchEvent(new Event("change"));
           }
         });
 
@@ -366,6 +390,105 @@ class IraqLeafletMap {
       console.error("Error loading Sharawani layers:", error);
       this.showError(
         "Failed to load Sharawani layer list. Please check the server."
+      );
+    }
+  }
+
+  async loadCombinedData() {
+    try {
+      console.log("Fetching Combined dataset...");
+      const response = await fetch("/api/combined-data");
+      const combinedData = await response.json();
+      console.log("Combined dataset data:", combinedData);
+
+      const combinedControls = document.getElementById("combinedControls");
+      if (!combinedControls) {
+        throw new Error("combinedControls element not found");
+      }
+
+      if (!combinedData.success || !combinedData.data) {
+        throw new Error("Invalid combined data response");
+      }
+
+      // Group data by dataset
+      const datasetGroups = {};
+      combinedData.data.forEach((point) => {
+        if (!datasetGroups[point.dataset]) {
+          datasetGroups[point.dataset] = [];
+        }
+        datasetGroups[point.dataset].push(point);
+      });
+
+      // Add Load All / Clear All buttons for Combined data
+      const combinedButtonContainer = document.createElement("div");
+      combinedButtonContainer.style.marginBottom = "10px";
+
+      const loadAllCombinedBtn = document.createElement("button");
+      loadAllCombinedBtn.textContent = "Load All";
+      loadAllCombinedBtn.style.cssText =
+        "margin-right: 8px; padding: 6px 12px; font-size: 0.8em; background: #17a2b8; color: white; border: 1px solid #17a2b8; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
+
+      const clearAllCombinedBtn = document.createElement("button");
+      clearAllCombinedBtn.textContent = "Clear All";
+      clearAllCombinedBtn.style.cssText =
+        "padding: 6px 12px; font-size: 0.8em; background: #dc3545; color: white; border: 1px solid #dc3545; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
+
+      combinedButtonContainer.appendChild(loadAllCombinedBtn);
+      combinedButtonContainer.appendChild(clearAllCombinedBtn);
+      combinedControls.appendChild(combinedButtonContainer);
+
+      // Create checkboxes for each dataset
+      Object.keys(datasetGroups).forEach((dataset) => {
+        const layerItem = document.createElement("div");
+        layerItem.className = "layer-item";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = `combined-${dataset}`;
+        checkbox.value = dataset;
+
+        const label = document.createElement("label");
+        label.htmlFor = checkbox.id;
+        label.textContent = `${dataset} (${datasetGroups[dataset].length} points)`;
+
+        layerItem.appendChild(checkbox);
+        layerItem.appendChild(label);
+        combinedControls.appendChild(layerItem);
+
+        // Add event listener for checkbox
+        checkbox.addEventListener("change", (e) => {
+          if (e.target.checked) {
+            this.loadCombinedDataset(dataset, datasetGroups[dataset]);
+          } else {
+            this.hideCombinedDataset(dataset);
+          }
+        });
+      });
+
+      // Add event listeners for Load All / Clear All buttons
+      loadAllCombinedBtn.addEventListener("click", () => {
+        Object.keys(datasetGroups).forEach((dataset) => {
+          const checkbox = document.getElementById(`combined-${dataset}`);
+          if (checkbox && !checkbox.checked) {
+            checkbox.checked = true;
+            this.loadCombinedDataset(dataset, datasetGroups[dataset]);
+          }
+        });
+      });
+
+      clearAllCombinedBtn.addEventListener("click", () => {
+        Object.keys(datasetGroups).forEach((dataset) => {
+          const checkbox = document.getElementById(`combined-${dataset}`);
+          if (checkbox && checkbox.checked) {
+            checkbox.checked = false;
+            this.hideCombinedDataset(dataset);
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Error loading Combined dataset:", error);
+      this.showError(
+        "Failed to load Combined dataset. Please check the server."
       );
     }
   }
@@ -893,6 +1016,90 @@ class IraqLeafletMap {
     if (layerGroup && this.map.hasLayer(layerGroup)) {
       this.map.removeLayer(layerGroup);
     }
+  }
+
+  loadCombinedDataset(datasetName, dataPoints) {
+    try {
+      console.log(`Loading combined dataset: ${datasetName}`);
+
+      // Get color for this dataset
+      const color =
+        this.combinedColors[datasetName] || this.combinedColors.default;
+
+      // Create icon for this dataset
+      const icon = this.createCombinedIcon(datasetName, color);
+
+      // Create layer group for this dataset
+      const layerGroup = L.layerGroup();
+
+      // Add markers for each point
+      dataPoints.forEach((point) => {
+        const marker = L.marker([point.latitude, point.longitude], {
+          icon: icon,
+          pane: "sharawaniPointPane", // Use same high z-index pane as other points
+        });
+
+        marker.setZIndexOffset(2000);
+
+        // Create popup content
+        const popupContent = this.createCombinedPopupContent(
+          point,
+          datasetName
+        );
+        marker.bindPopup(popupContent, {
+          maxWidth: 300,
+          className: "custom-popup",
+          pane: "popupPane",
+        });
+
+        layerGroup.addLayer(marker);
+      });
+
+      // Add to map and store reference
+      layerGroup.addTo(this.map);
+      this.combinedLayers.set(datasetName, layerGroup);
+
+      console.log(`✅ Loaded ${dataPoints.length} points for ${datasetName}`);
+    } catch (error) {
+      console.error(`Error loading combined dataset ${datasetName}:`, error);
+    }
+  }
+
+  hideCombinedDataset(datasetName) {
+    const layerGroup = this.combinedLayers.get(datasetName);
+    if (layerGroup && this.map.hasLayer(layerGroup)) {
+      this.map.removeLayer(layerGroup);
+    }
+  }
+
+  createCombinedIcon(datasetName, color) {
+    return L.divIcon({
+      html: `<div style="
+        background-color: ${color}; 
+        width: 14px; 
+        height: 14px; 
+        border-radius: 50%; 
+        border: 2px solid white; 
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        position: relative;
+      "></div>`,
+      className: "combined-marker",
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+      popupAnchor: [0, -7],
+    });
+  }
+
+  createCombinedPopupContent(point, datasetName) {
+    return `
+      <div class="popup-content">
+        <h4>${point.name}</h4>
+        <p><strong>Dataset:</strong> ${datasetName}</p>
+        <p><strong>Location:</strong> ${point.latitude.toFixed(
+          6
+        )}, ${point.longitude.toFixed(6)}</p>
+      </div>
+    `;
   }
 
   showFeatureInfo(properties) {

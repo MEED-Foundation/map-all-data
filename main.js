@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const XLSX = require("xlsx");
 const cors = require("cors");
 
 const app = express();
@@ -161,6 +162,45 @@ app.get("/api/sharawani/:filename", async (req, res) => {
   } catch (error) {
     console.error("Error reading Sharawani GeoJSON file:", error);
     res.status(500).json({ error: "Error reading Sharawani GeoJSON file" });
+  }
+});
+
+// API endpoint to serve Combined.xlsx data
+app.get("/api/combined-data", (req, res) => {
+  try {
+    const filePath = path.join(__dirname, "datasets", "Combined.xlsx");
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        error: "Combined.xlsx file not found.",
+      });
+    }
+
+    // Read the Excel file
+    const workbook = XLSX.readFile(filePath);
+    const sheetName = workbook.SheetNames[0]; // Use first sheet
+    const worksheet = workbook.Sheets[sheetName];
+    const data = XLSX.utils.sheet_to_json(worksheet);
+
+    // Filter and format the data to only include required columns
+    const formattedData = data
+      .filter((row) => row.Name && row.Latitude && row.Longitude && row.Dataset)
+      .map((row) => ({
+        name: row.Name,
+        latitude: parseFloat(row.Latitude),
+        longitude: parseFloat(row.Longitude),
+        dataset: row.Dataset,
+      }))
+      .filter((row) => !isNaN(row.latitude) && !isNaN(row.longitude));
+
+    res.json({
+      success: true,
+      count: formattedData.length,
+      data: formattedData,
+    });
+  } catch (error) {
+    console.error("Error reading Combined.xlsx:", error);
+    res.status(500).json({ error: "Error reading Combined.xlsx file" });
   }
 });
 
