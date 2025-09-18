@@ -1,0 +1,537 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.4073,
+          35.559
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 1,
+        "Name": "Sulaimani - KSC-Rzgary",
+        "Hight (meter)": 2.5,
+        "name": "Sulaimani - KSC-Rzgary",
+        "dataset": "Unknown",
+        "latitude": 35.559,
+        "longitude": 45.4073
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.3809,
+          35.5516
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 2,
+        "Name": "Sulaimani - Awbara",
+        "Hight (meter)": 4.0,
+        "name": "Sulaimani - Awbara",
+        "dataset": "Unknown",
+        "latitude": 35.5516,
+        "longitude": 45.3809
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.47806,
+          35.56019
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 3,
+        "Name": "Sulaimani - Goizha City",
+        "Hight (meter)": 2.5,
+        "name": "Sulaimani - Goizha City",
+        "dataset": "Unknown",
+        "latitude": 35.56019,
+        "longitude": 45.47806
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.4593,
+          35.5795
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 4,
+        "Name": "Sulaimani - German Village",
+        "Hight (meter)": 2.5,
+        "name": "Sulaimani - German Village",
+        "dataset": "Unknown",
+        "latitude": 35.5795,
+        "longitude": 45.4593
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.4466,
+          35.5054
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 5,
+        "Name": "Sulaimani - Alwaka",
+        "Hight (meter)": 6.0,
+        "name": "Sulaimani - Alwaka",
+        "dataset": "Unknown",
+        "latitude": 35.5054,
+        "longitude": 45.4466
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.5006,
+          35.6475
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 6,
+        "Name": "Sulaimani - Sitak",
+        "Hight (meter)": 2.5,
+        "name": "Sulaimani - Sitak",
+        "dataset": "Unknown",
+        "latitude": 35.6475,
+        "longitude": 45.5006
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.3439,
+          35.5781
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 7,
+        "Name": "Sulaimani - Pahsa city",
+        "Hight (meter)": 3.0,
+        "name": "Sulaimani - Pahsa city",
+        "dataset": "Unknown",
+        "latitude": 35.5781,
+        "longitude": 45.3439
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.388,
+          35.5693
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 8,
+        "Name": "Sulaimani - City center Building ",
+        "Hight (meter)": 3.5,
+        "name": "Sulaimani - City center Building ",
+        "dataset": "Unknown",
+        "latitude": 35.5693,
+        "longitude": 45.388
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.4412,
+          35.5576
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 9,
+        "Name": "Sulaimani - Rashamall Sales Node",
+        "Hight (meter)": 4.0,
+        "name": "Sulaimani - Rashamall Sales Node",
+        "dataset": "Unknown",
+        "latitude": 35.5576,
+        "longitude": 45.4412
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.9666,
+          35.9256
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 10,
+        "Name": "Dukan ",
+        "Hight (meter)": 4.3,
+        "name": "Dukan ",
+        "dataset": "Unknown",
+        "latitude": 35.9256,
+        "longitude": 44.9666
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.1595,
+          35.7237
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 11,
+        "Name": "Piramagrun ",
+        "Hight (meter)": 3.3,
+        "name": "Piramagrun ",
+        "dataset": "Unknown",
+        "latitude": 35.7237,
+        "longitude": 45.1595
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.14635,
+          35.59328
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 12,
+        "Name": "Bazian ",
+        "Hight (meter)": 4.0,
+        "name": "Bazian ",
+        "dataset": "Unknown",
+        "latitude": 35.59328,
+        "longitude": 45.14635
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.8493,
+          35.3598
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 13,
+        "Name": "Saidsadq ",
+        "Hight (meter)": 5.0,
+        "name": "Saidsadq ",
+        "dataset": "Unknown",
+        "latitude": 35.3598,
+        "longitude": 45.8493
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.9697,
+          35.1959
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 14,
+        "Name": "Halabja ",
+        "Hight (meter)": 3.4,
+        "name": "Halabja ",
+        "dataset": "Unknown",
+        "latitude": 35.1959,
+        "longitude": 45.9697
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          46.1114,
+          35.2283
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 15,
+        "Name": "Byara ",
+        "Hight (meter)": 3.2,
+        "name": "Byara ",
+        "dataset": "Unknown",
+        "latitude": 35.2283,
+        "longitude": 46.1114
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.9492,
+          35.6192
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 16,
+        "Name": "Penjwen ",
+        "Hight (meter)": 3.8,
+        "name": "Penjwen ",
+        "dataset": "Unknown",
+        "latitude": 35.6192,
+        "longitude": 45.9492
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.6824,
+          35.1196
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 17,
+        "Name": "Darbandikhan ",
+        "Hight (meter)": 6.0,
+        "name": "Darbandikhan ",
+        "dataset": "Unknown",
+        "latitude": 35.1196,
+        "longitude": 45.6824
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.3294,
+          34.6301
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 18,
+        "Name": "Kalar ",
+        "Hight (meter)": 3.0,
+        "name": "Kalar ",
+        "dataset": "Unknown",
+        "latitude": 34.6301,
+        "longitude": 45.3294
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.9592,
+          34.6859
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 19,
+        "Name": "Kifri ",
+        "Hight (meter)": 3.0,
+        "name": "Kifri ",
+        "dataset": "Unknown",
+        "latitude": 34.6859,
+        "longitude": 44.9592
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.1303,
+          36.1815
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 20,
+        "Name": "Qaladze",
+        "Hight (meter)": 3.85,
+        "name": "Qaladze",
+        "dataset": "Unknown",
+        "latitude": 36.1815,
+        "longitude": 45.1303
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.8649,
+          36.2332
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 21,
+        "Name": "Ranya ",
+        "Hight (meter)": 4.8,
+        "name": "Ranya ",
+        "dataset": "Unknown",
+        "latitude": 36.2332,
+        "longitude": 44.8649
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.6712,
+          36.1005
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 22,
+        "Name": "Haibasultan ",
+        "Hight (meter)": 3.0,
+        "name": "Haibasultan ",
+        "dataset": "Unknown",
+        "latitude": 36.1005,
+        "longitude": 44.6712
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.8386,
+          35.527
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 23,
+        "Name": "Chamchamal ",
+        "Hight (meter)": 3.0,
+        "name": "Chamchamal ",
+        "dataset": "Unknown",
+        "latitude": 35.527,
+        "longitude": 44.8386
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.5652,
+          35.7185
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 24,
+        "Name": "Chwarta",
+        "Hight (meter)": 4.0,
+        "name": "Chwarta",
+        "dataset": "Unknown",
+        "latitude": 35.7185,
+        "longitude": 45.5652
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.4083,
+          35.9008
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 25,
+        "Name": "Mawat",
+        "Hight (meter)": 5.0,
+        "name": "Mawat",
+        "dataset": "Unknown",
+        "latitude": 35.9008,
+        "longitude": 45.4083
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.4159,
+          35.5299
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 26,
+        "Name": "Electricity directory",
+        "Hight (meter)": 3.5,
+        "name": "Electricity directory",
+        "dataset": "Unknown",
+        "latitude": 35.5299,
+        "longitude": 45.4159
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.4244,
+          35.5962
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 27,
+        "Name": "Companies directory",
+        "Hight (meter)": 6.0,
+        "name": "Companies directory",
+        "dataset": "Unknown",
+        "latitude": 35.5962,
+        "longitude": 45.4244
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.3935,
+          35.4848
+        ]
+      },
+      "properties": {
+        "Unnamed: 0": 28,
+        "Name": "Kerkuk",
+        "Hight (meter)": 4.5,
+        "name": "Kerkuk",
+        "dataset": "Unknown",
+        "latitude": 35.4848,
+        "longitude": 44.3935
+      }
+    }
+  ]
+}

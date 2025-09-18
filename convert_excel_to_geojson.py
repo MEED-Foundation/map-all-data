@@ -210,8 +210,8 @@ def excel_to_geojson(excel_path, output_path=None):
 
 def main():
     """Main function to run the conversion."""
-    excel_file = "datasets/villages.xlsx"
-    output_file = "datasets/villages.geojson"
+    excel_file = "datasets/IQ Air devices.xlsx"
+    output_file = "datasets/IQ Air devices.geojson"
     
     # Check if input file exists
     if not Path(excel_file).exists():

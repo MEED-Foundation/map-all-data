@@ -6,6 +6,7 @@ class IraqLeafletMap {
     this.sharawaniLayers = new Map();
     this.combinedLayers = new Map();
     this.villagesLayers = new Map();
+    this.iqAirLayers = new Map();
     this.layerColors = {
       irq_admbnda_adm0_cso_itos_20190603: "#2c3e50", // Dark blue-gray
       irq_admbnda_adm1_cso_20190603: "#34495e", // Medium gray
@@ -31,6 +32,10 @@ class IraqLeafletMap {
 
     this.villagesColors = {
       Villages: "#8e44ad", // Professional purple for villages
+    };
+
+    this.iqAirColors = {
+      "IQ Air": "#20c997", // Professional teal for IQ Air devices
     };
 
     // Define coordinate system transformations
@@ -80,6 +85,9 @@ class IraqLeafletMap {
 
       await this.loadVillagesData();
       console.log("Villages dataset loaded");
+
+      await this.loadIqAirData();
+      console.log("IQ Air devices dataset loaded");
 
       this.setupGlobalControls();
       console.log("Global controls setup complete");
@@ -133,6 +141,16 @@ class IraqLeafletMap {
         const villagesCheckboxes =
           document.querySelectorAll('[id^="villages-"]');
         villagesCheckboxes.forEach((checkbox) => {
+          if (!checkbox.checked) {
+            checkbox.checked = true;
+            // Trigger the change event to load the dataset
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        // Load all IQ Air dataset layers
+        const iqAirCheckboxes = document.querySelectorAll('[id^="iq-air-"]');
+        iqAirCheckboxes.forEach((checkbox) => {
           if (!checkbox.checked) {
             checkbox.checked = true;
             // Trigger the change event to load the dataset
@@ -635,6 +653,98 @@ class IraqLeafletMap {
       console.error("Error loading Villages dataset:", error);
       this.showError(
         "Failed to load Villages dataset. Please check the server."
+      );
+    }
+  }
+
+  async loadIqAirData() {
+    try {
+      console.log("Fetching IQ Air devices dataset...");
+      const response = await fetch("/api/iq-air-data");
+      const iqAirData = await response.json();
+      console.log("IQ Air devices dataset data:", iqAirData);
+
+      const iqAirControls = document.getElementById("iqAirControls");
+      if (!iqAirControls) {
+        throw new Error("iqAirControls element not found");
+      }
+
+      if (!iqAirData.success || !iqAirData.data) {
+        throw new Error("Invalid IQ Air data response");
+      }
+
+      // Add Load All / Clear All buttons for IQ Air data
+      const iqAirButtonContainer = document.createElement("div");
+      iqAirButtonContainer.style.marginBottom = "10px";
+
+      const loadAllIqAirBtn = document.createElement("button");
+      loadAllIqAirBtn.textContent = "Load IQ Air Devices";
+      loadAllIqAirBtn.style.cssText =
+        "margin-right: 8px; padding: 6px 12px; font-size: 0.8em; background: #20c997; color: white; border: 1px solid #20c997; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
+
+      const clearAllIqAirBtn = document.createElement("button");
+      clearAllIqAirBtn.textContent = "Clear IQ Air Devices";
+      clearAllIqAirBtn.style.cssText =
+        "padding: 6px 12px; font-size: 0.8em; background: #dc3545; color: white; border: 1px solid #dc3545; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
+
+      iqAirButtonContainer.appendChild(loadAllIqAirBtn);
+      iqAirButtonContainer.appendChild(clearAllIqAirBtn);
+      iqAirControls.appendChild(iqAirButtonContainer);
+
+      // Create checkbox for IQ Air devices dataset
+      const layerItem = document.createElement("div");
+      layerItem.className = "layer-item";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "iq-air-IQ Air";
+      checkbox.value = "IQ Air";
+
+      const iconSpan = document.createElement("span");
+      iconSpan.className = "layer-icon";
+      iconSpan.textContent = "🌬️"; // Air/wind icon for IQ Air devices
+      iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
+
+      const label = document.createElement("label");
+      label.htmlFor = checkbox.id;
+      label.textContent = `IQ Air Devices (${iqAirData.data.length} devices)`;
+
+      layerItem.appendChild(checkbox);
+      layerItem.appendChild(iconSpan);
+      layerItem.appendChild(label);
+      iqAirControls.appendChild(layerItem);
+
+      // Add event listener for checkbox
+      checkbox.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          this.loadIqAirDataset("IQ Air", iqAirData.data);
+          iconSpan.style.filter = "none"; // Show in color
+        } else {
+          this.hideIqAirDataset("IQ Air");
+          iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
+        }
+      });
+
+      // Add event listeners for Load All / Clear All buttons
+      loadAllIqAirBtn.addEventListener("click", () => {
+        if (!checkbox.checked) {
+          checkbox.checked = true;
+          this.loadIqAirDataset("IQ Air", iqAirData.data);
+          iconSpan.style.filter = "none"; // Show in color
+        }
+      });
+
+      clearAllIqAirBtn.addEventListener("click", () => {
+        if (checkbox.checked) {
+          checkbox.checked = false;
+          this.hideIqAirDataset("IQ Air");
+          iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
+        }
+      });
+    } catch (error) {
+      console.error("Error loading IQ Air devices dataset:", error);
+      this.showError(
+        "Failed to load IQ Air devices dataset. Please check the server."
       );
     }
   }
@@ -1548,6 +1658,109 @@ class IraqLeafletMap {
     }
   }
 
+  loadIqAirDataset(datasetName, dataPoints) {
+    try {
+      console.log(
+        `🌬️ Loading IQ Air devices dataset: ${datasetName} (${dataPoints.length} devices)`
+      );
+      const startTime = performance.now();
+
+      // Get color for IQ Air dataset
+      const color = this.iqAirColors[datasetName] || "#20c997";
+
+      // Create IQ Air-specific MarkerClusterGroup
+      const clusterGroup = L.markerClusterGroup({
+        chunkedLoading: true,
+        chunkProgress: (processed, total) => {
+          if (processed % 50 === 0 || processed === total) {
+            console.log(
+              `🌬️ Loading progress for ${datasetName}: ${processed}/${total} devices (${Math.round(
+                (processed / total) * 100
+              )}%)`
+            );
+          }
+        },
+        // Custom cluster icon specific to IQ Air devices
+        iconCreateFunction: (cluster) => {
+          const count = cluster.getChildCount();
+          return this.createIqAirClusterIcon(count, datasetName, color);
+        },
+        // Performance optimizations for IQ Air devices
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        maxClusterRadius: 40, // Good clustering for air quality devices
+        disableClusteringAtZoom: 16, // Disable clustering at high zoom levels
+      });
+
+      // Batch create markers for better performance
+      const markers = [];
+      const batchSize = 50; // Smaller batches for IQ Air devices
+
+      const processBatch = (startIndex) => {
+        const endIndex = Math.min(startIndex + batchSize, dataPoints.length);
+
+        for (let i = startIndex; i < endIndex; i++) {
+          const point = dataPoints[i];
+
+          // Create lightweight marker
+          const marker = L.marker([point.latitude, point.longitude], {
+            icon: this.createOptimizedIqAirIcon(datasetName, color),
+          });
+
+          // Lazy-load popup content (only create when needed)
+          marker.on("click", () => {
+            if (!marker.getPopup()) {
+              const popupContent = this.createIqAirPopupContent(
+                point,
+                datasetName
+              );
+              marker.bindPopup(popupContent, {
+                maxWidth: 300,
+                className: "custom-popup",
+              });
+            }
+            marker.openPopup();
+          });
+
+          markers.push(marker);
+        }
+
+        // Add batch to cluster group
+        clusterGroup.addLayers(markers.slice(startIndex, endIndex));
+
+        // Process next batch asynchronously to prevent UI blocking
+        if (endIndex < dataPoints.length) {
+          setTimeout(() => processBatch(endIndex), 10);
+        } else {
+          // All markers processed
+          const endTime = performance.now();
+          console.log(
+            `✅ Loaded ${dataPoints.length} IQ Air devices in ${Math.round(
+              endTime - startTime
+            )}ms`
+          );
+
+          // Add to map and store reference
+          clusterGroup.addTo(this.map);
+          this.iqAirLayers.set(datasetName, clusterGroup);
+        }
+      };
+
+      // Start processing batches
+      processBatch(0);
+    } catch (error) {
+      console.error(`❌ Error loading IQ Air dataset ${datasetName}:`, error);
+    }
+  }
+
+  hideIqAirDataset(datasetName) {
+    const layerGroup = this.iqAirLayers.get(datasetName);
+    if (layerGroup && this.map.hasLayer(layerGroup)) {
+      this.map.removeLayer(layerGroup);
+    }
+  }
+
   createCombinedIcon(datasetName, color) {
     const iconMap = {
       HERA: "🏛️", // Classical building for heritage/archaeology
@@ -1825,6 +2038,89 @@ class IraqLeafletMap {
 
     this._iconCache.set(cacheKey, optimizedIcon);
     return optimizedIcon;
+  }
+
+  createIqAirClusterIcon(count, datasetName, color) {
+    // Size classes based on count
+    let sizeClass = "small";
+    let iconSize = 35;
+    if (count > 50) {
+      sizeClass = "large";
+      iconSize = 50;
+    } else if (count > 10) {
+      sizeClass = "medium";
+      iconSize = 42;
+    }
+
+    // Create IQ Air-themed cluster
+    return L.divIcon({
+      html: `<div class="iq-air-cluster-${sizeClass}" style="
+        background-color: ${color};
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        width: ${iconSize}px;
+        height: ${iconSize}px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        color: white;
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      ">
+        <div style="font-size: ${
+          iconSize > 40 ? "16px" : "14px"
+        }; line-height: 1;">🌬️</div>
+        <div style="font-size: ${
+          iconSize > 40 ? "12px" : "10px"
+        }; line-height: 1; margin-top: 1px;">${count}</div>
+      </div>`,
+      className: `iq-air-cluster iq-air-cluster-${sizeClass}`,
+      iconSize: [iconSize, iconSize],
+      iconAnchor: [iconSize / 2, iconSize / 2],
+    });
+  }
+
+  createOptimizedIqAirIcon(datasetName, color) {
+    // Cache icons to avoid recreating them
+    const cacheKey = `iq-air-${datasetName}-${color}`;
+    if (!this._iconCache) {
+      this._iconCache = new Map();
+    }
+
+    if (this._iconCache.has(cacheKey)) {
+      return this._iconCache.get(cacheKey);
+    }
+
+    // Create optimized icon with minimal DOM
+    const optimizedIcon = L.divIcon({
+      html: `<span style="font-size:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))">🌬️</span>`,
+      className: "optimized-iq-air-marker",
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+      popupAnchor: [0, -10],
+    });
+
+    this._iconCache.set(cacheKey, optimizedIcon);
+    return optimizedIcon;
+  }
+
+  createIqAirPopupContent(point, datasetName) {
+    return `
+      <div class="popup-content">
+        <h4>${point.name}</h4>
+        <p><strong>Dataset:</strong> ${datasetName}</p>
+        ${
+          point.height
+            ? `<p><strong>Height:</strong> ${point.height} meters</p>`
+            : ""
+        }
+        <p><strong>Location:</strong> ${point.latitude.toFixed(
+          6
+        )}, ${point.longitude.toFixed(6)}</p>
+      </div>
+    `;
   }
 
   createVillagesPopupContent(point, datasetName) {

@@ -239,6 +239,51 @@ app.get("/api/combined-data", (req, res) => {
   }
 });
 
+// API endpoint to serve IQ Air devices GeoJSON data
+app.get("/api/iq-air-data", (req, res) => {
+  try {
+    const geojsonPath = path.join(
+      __dirname,
+      "datasets",
+      "IQ Air devices.geojson"
+    );
+
+    if (!fs.existsSync(geojsonPath)) {
+      return res.status(404).json({
+        error:
+          "IQ Air devices.geojson file not found. Please make sure the IQ Air devices data is available.",
+      });
+    }
+
+    // Read the GeoJSON file
+    const geojsonData = fs.readFileSync(geojsonPath, "utf8");
+    const geojson = JSON.parse(geojsonData);
+
+    // Extract data in the format expected by the frontend
+    const formattedData = geojson.features.map((feature) => ({
+      name:
+        feature.properties.Name ||
+        feature.properties.name ||
+        `IQ Air Device ${feature.properties["Unnamed: 0"] || "Unknown"}`,
+      latitude: feature.properties.latitude,
+      longitude: feature.properties.longitude,
+      height: feature.properties["Hight (meter)"] || feature.properties.height,
+      dataset: "IQ Air",
+    }));
+
+    res.json({
+      success: true,
+      count: formattedData.length,
+      data: formattedData,
+    });
+  } catch (error) {
+    console.error("Error reading IQ Air devices.geojson:", error);
+    res
+      .status(500)
+      .json({ error: "Error reading IQ Air devices.geojson file" });
+  }
+});
+
 // Helper function to determine admin level
 function getAdminLevel(filename) {
   if (filename.toLowerCase().includes("adm0")) return "ADM0";
