@@ -25,6 +25,8 @@ class IraqLeafletMap {
       // Default colors for different datasets - will be expanded dynamically
       default: "#17a2b8", // Professional teal
       HERA: "#28a745", // Professional green
+      "HERA (Orchards)": "#178731", // Green for orchards
+      "HERA (Wheat)": "#a88519", // Yellow for wheat
       Compost: "#ffc107", // Professional yellow
       Investment: "#e83e8c", // Professional pink
       "IQ Air": "#6610f2", // Professional indigo
@@ -379,17 +381,29 @@ class IraqLeafletMap {
 
         // Get the icon for this layer
         const iconMap = {
-          Cemetary: "/icons/village.jpg",
+          Cemetary: "/icons/village.png",
           education: "/icons/education.png",
-          "Fuel Station": "/icons/fuel-station.jpg",
+          "Fuel Station": "/icons/fuel-station.png",
           Healthcare: "/icons/healthcare.png",
-          Suburbs: "/icons/village.jpg",
+          Suburbs: "/icons/village.png",
         };
-        const iconPath = iconMap[sharawaniFile.name] || "/icons/village.jpg";
+        const iconPath = iconMap[sharawaniFile.name] || "/icons/village.png";
 
         const iconSpan = document.createElement("span");
         iconSpan.className = "layer-icon";
-        iconSpan.innerHTML = `<img src="${iconPath}" style="width: 16px; height: 16px; object-fit: contain;" alt="${sharawaniFile.name}" />`;
+        const layerColor =
+          this.sharawaniColors[sharawaniFile.name] || this.getRandomColor();
+        iconSpan.innerHTML = `<div style="
+          background: ${layerColor}; 
+          width: 28px; 
+          height: 28px; 
+          border-radius: 50%;
+          border: 2px solid white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        "><img src="${iconPath}" style="width: 18px; height: 18px; object-fit: contain; filter: brightness(0) invert(1);" alt="${sharawaniFile.name}" /></div>`;
         iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
 
         const label = document.createElement("label");
@@ -500,6 +514,8 @@ class IraqLeafletMap {
         // Get the icon for this dataset
         const iconMap = {
           HERA: "/icons/investment.png",
+          "HERA (Orchards)": "/icons/orchard.png",
+          "HERA (Wheat)": "/icons/wheat.png",
           Compost: "/icons/compost.png",
           Investment: "/icons/investment.png",
           "IQ Air": "/icons/IQ Air.png",
@@ -509,7 +525,19 @@ class IraqLeafletMap {
 
         const iconSpan = document.createElement("span");
         iconSpan.className = "layer-icon";
-        iconSpan.innerHTML = `<img src="${iconPath}" style="width: 16px; height: 16px; object-fit: contain;" alt="${dataset}" />`;
+        const datasetColor =
+          this.combinedColors[dataset] || this.combinedColors.default;
+        iconSpan.innerHTML = `<div style="
+          background: ${datasetColor}; 
+          width: 28px; 
+          height: 28px; 
+          border-radius: 50%;
+          border: 2px solid white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        "><img src="${iconPath}" style="width: 18px; height: 18px; object-fit: contain; filter: brightness(0) invert(1);" alt="${dataset}" /></div>`;
         iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
 
         const label = document.createElement("label");
@@ -610,7 +638,18 @@ class IraqLeafletMap {
 
       const iconSpan = document.createElement("span");
       iconSpan.className = "layer-icon";
-      iconSpan.innerHTML = `<img src="/icons/village.jpg" style="width: 16px; height: 16px; object-fit: contain;" alt="Villages" />`;
+      const villagesColor = this.villagesColors["Villages"] || "#8e44ad";
+      iconSpan.innerHTML = `<div style="
+        background: ${villagesColor}; 
+        width: 28px; 
+        height: 28px; 
+        border-radius: 50%;
+        border: 2px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      "><img src="/icons/village.png" style="width: 18px; height: 18px; object-fit: contain; filter: brightness(0) invert(1);" alt="Villages" /></div>`;
       iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
 
       const label = document.createElement("label");
@@ -702,7 +741,18 @@ class IraqLeafletMap {
 
       const iconSpan = document.createElement("span");
       iconSpan.className = "layer-icon";
-      iconSpan.innerHTML = `<img src="/icons/IQ Air.png" style="width: 16px; height: 16px; object-fit: contain;" alt="IQ Air" />`;
+      const iqAirColor = this.iqAirColors["IQ Air"] || "#20c997";
+      iconSpan.innerHTML = `<div style="
+        background: ${iqAirColor}; 
+        width: 28px; 
+        height: 28px; 
+        border-radius: 50%;
+        border: 2px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      "><img src="/icons/IQ Air.png" style="width: 18px; height: 18px; object-fit: contain; filter: brightness(0) invert(1);" alt="IQ Air" /></div>`;
       iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
 
       const label = document.createElement("label");
@@ -1159,29 +1209,31 @@ class IraqLeafletMap {
 
   createSharawaniIcon(layerName, color) {
     const iconMap = {
-      Cemetary: "/icons/village.jpg", // Using village icon for cemetery
+      Cemetary: "/icons/village.png", // Using village icon for cemetery
       education: "/icons/education.png", // Graduation cap
-      "Fuel Station": "/icons/fuel-station.jpg", // Fuel pump
+      "Fuel Station": "/icons/fuel-station.png", // Fuel pump
       Healthcare: "/icons/healthcare.png", // Hospital
-      Suburbs: "/icons/village.jpg", // Houses
+      Suburbs: "/icons/village.png", // Houses
     };
 
-    const iconPath = iconMap[layerName] || "/icons/village.jpg";
+    const iconPath = iconMap[layerName] || "/icons/village.png";
 
     return L.divIcon({
       html: `<div style="
-        background: transparent; 
-        width: 24px; 
-        height: 24px; 
+        background: ${color}; 
+        width: 36px; 
+        height: 36px; 
+        border-radius: 50%;
+        border: 3px solid white;
         display: flex;
         align-items: center;
         justify-content: center;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-      "><img src="${iconPath}" style="width: 20px; height: 20px; object-fit: contain;" alt="${layerName}" /></div>`,
+        box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+      "><img src="${iconPath}" style="width: 24px; height: 24px; object-fit: contain; filter: brightness(0) invert(1);" alt="${layerName}" /></div>`,
       className: "category-marker",
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-      popupAnchor: [0, -12],
+      iconSize: [36, 36],
+      iconAnchor: [18, 18],
+      popupAnchor: [0, -18],
     });
   }
 
@@ -1815,11 +1867,21 @@ class IraqLeafletMap {
 
     // Create optimized icon with minimal DOM
     const optimizedIcon = L.divIcon({
-      html: `<img src="${iconPath}" style="width: 16px; height: 16px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));" alt="${datasetName}" />`,
+      html: `<div style="
+        background: ${color}; 
+        width: 32px; 
+        height: 32px; 
+        border-radius: 50%;
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+      "><img src="${iconPath}" style="width: 20px; height: 20px; object-fit: contain; filter: brightness(0) invert(1);" alt="${datasetName}" /></div>`,
       className: "optimized-marker",
-      iconSize: [20, 20],
-      iconAnchor: [10, 10],
-      popupAnchor: [0, -10],
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16],
     });
 
     this._iconCache.set(cacheKey, optimizedIcon);
@@ -1843,13 +1905,13 @@ class IraqLeafletMap {
 
     // Size classes based on count
     let sizeClass = "small";
-    let iconSize = 35;
+    let iconSize = 45;
     if (count > 100) {
       sizeClass = "large";
-      iconSize = 50;
+      iconSize = 65;
     } else if (count > 10) {
       sizeClass = "medium";
-      iconSize = 42;
+      iconSize = 55;
     }
 
     // Create dataset-themed cluster
@@ -1870,10 +1932,10 @@ class IraqLeafletMap {
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
       ">
         <div style="line-height: 1;"><img src="${datasetIconPath}" style="width: ${
-        iconSize > 40 ? "16px" : "14px"
+        iconSize > 55 ? "22px" : "18px"
       }; height: ${
-        iconSize > 40 ? "16px" : "14px"
-      }; object-fit: contain;" alt="${datasetName}" /></div>
+        iconSize > 55 ? "22px" : "18px"
+      }; object-fit: contain; filter: brightness(0) invert(1);" alt="${datasetName}" /></div>
         <div style="font-size: ${
           iconSize > 40 ? "12px" : "10px"
         }; line-height: 1; margin-top: 1px;">${count}</div>
@@ -1889,24 +1951,24 @@ class IraqLeafletMap {
   createSharawaniClusterIcon(count, layerName, color) {
     // Get Sharawani-specific icon and styling
     const iconMap = {
-      Cemetary: "/icons/village.jpg",
+      Cemetary: "/icons/village.png",
       education: "/icons/education.png",
-      "Fuel Station": "/icons/fuel-station.jpg",
+      "Fuel Station": "/icons/fuel-station.png",
       Healthcare: "/icons/healthcare.png",
-      Suburbs: "/icons/village.jpg",
+      Suburbs: "/icons/village.png",
     };
 
-    const layerIconPath = iconMap[layerName] || "/icons/village.jpg";
+    const layerIconPath = iconMap[layerName] || "/icons/village.png";
 
     // Size classes based on count (smaller clusters for service points)
     let sizeClass = "small";
-    let iconSize = 32;
+    let iconSize = 40;
     if (count > 50) {
       sizeClass = "large";
-      iconSize = 45;
+      iconSize = 60;
     } else if (count > 10) {
       sizeClass = "medium";
-      iconSize = 38;
+      iconSize = 50;
     }
 
     // Create Sharawani-themed cluster
@@ -1927,10 +1989,10 @@ class IraqLeafletMap {
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
       ">
         <div style="line-height: 1;"><img src="${layerIconPath}" style="width: ${
-        iconSize > 35 ? "14px" : "12px"
+        iconSize > 50 ? "20px" : "16px"
       }; height: ${
-        iconSize > 35 ? "14px" : "12px"
-      }; object-fit: contain;" alt="${layerName}" /></div>
+        iconSize > 50 ? "20px" : "16px"
+      }; object-fit: contain; filter: brightness(0) invert(1);" alt="${layerName}" /></div>
         <div style="font-size: ${
           iconSize > 35 ? "10px" : "9px"
         }; line-height: 1; margin-top: 1px;">${count}</div>
@@ -1955,22 +2017,32 @@ class IraqLeafletMap {
     }
 
     const iconMap = {
-      Cemetary: "/icons/village.jpg",
+      Cemetary: "/icons/village.png",
       education: "/icons/education.png",
-      "Fuel Station": "/icons/fuel-station.jpg",
+      "Fuel Station": "/icons/fuel-station.png",
       Healthcare: "/icons/healthcare.png",
-      Suburbs: "/icons/village.jpg",
+      Suburbs: "/icons/village.png",
     };
 
-    const iconPath = iconMap[layerName] || "/icons/village.jpg";
+    const iconPath = iconMap[layerName] || "/icons/village.png";
 
     // Create optimized icon with minimal DOM
     const optimizedIcon = L.divIcon({
-      html: `<img src="${iconPath}" style="width: 18px; height: 18px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));" alt="${layerName}" />`,
+      html: `<div style="
+        background: ${color}; 
+        width: 32px; 
+        height: 32px; 
+        border-radius: 50%;
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+      "><img src="${iconPath}" style="width: 20px; height: 20px; object-fit: contain; filter: brightness(0) invert(1);" alt="${layerName}" /></div>`,
       className: "optimized-sharawani-marker",
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-      popupAnchor: [0, -12],
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16],
     });
 
     this._iconCache.set(cacheKey, optimizedIcon);
@@ -1980,13 +2052,13 @@ class IraqLeafletMap {
   createVillagesClusterIcon(count, datasetName, color) {
     // Size classes based on count
     let sizeClass = "small";
-    let iconSize = 35;
+    let iconSize = 45;
     if (count > 100) {
       sizeClass = "large";
-      iconSize = 50;
+      iconSize = 65;
     } else if (count > 10) {
       sizeClass = "medium";
-      iconSize = 42;
+      iconSize = 55;
     }
 
     // Create villages-themed cluster
@@ -2006,11 +2078,11 @@ class IraqLeafletMap {
         font-weight: bold;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
       ">
-        <div style="line-height: 1;"><img src="/icons/village.jpg" style="width: ${
-          iconSize > 40 ? "16px" : "14px"
+        <div style="line-height: 1;"><img src="/icons/village.png" style="width: ${
+          iconSize > 55 ? "22px" : "18px"
         }; height: ${
-        iconSize > 40 ? "16px" : "14px"
-      }; object-fit: contain;" alt="Villages" /></div>
+        iconSize > 55 ? "22px" : "18px"
+      }; object-fit: contain; filter: brightness(0) invert(1);" alt="Villages" /></div>
         <div style="font-size: ${
           iconSize > 40 ? "12px" : "10px"
         }; line-height: 1; margin-top: 1px;">${count}</div>
@@ -2034,11 +2106,21 @@ class IraqLeafletMap {
 
     // Create optimized icon with minimal DOM
     const optimizedIcon = L.divIcon({
-      html: `<img src="/icons/village.jpg" style="width: 16px; height: 16px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));" alt="${datasetName}" />`,
+      html: `<div style="
+        background: ${color}; 
+        width: 32px; 
+        height: 32px; 
+        border-radius: 50%;
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+      "><img src="/icons/village.png" style="width: 20px; height: 20px; object-fit: contain; filter: brightness(0) invert(1);" alt="${datasetName}" /></div>`,
       className: "optimized-villages-marker",
-      iconSize: [20, 20],
-      iconAnchor: [10, 10],
-      popupAnchor: [0, -10],
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16],
     });
 
     this._iconCache.set(cacheKey, optimizedIcon);
@@ -2048,13 +2130,13 @@ class IraqLeafletMap {
   createIqAirClusterIcon(count, datasetName, color) {
     // Size classes based on count
     let sizeClass = "small";
-    let iconSize = 35;
+    let iconSize = 45;
     if (count > 50) {
       sizeClass = "large";
-      iconSize = 50;
+      iconSize = 65;
     } else if (count > 10) {
       sizeClass = "medium";
-      iconSize = 42;
+      iconSize = 55;
     }
 
     // Create IQ Air-themed cluster
@@ -2075,10 +2157,10 @@ class IraqLeafletMap {
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
       ">
         <div style="line-height: 1;"><img src="/icons/IQ Air.png" style="width: ${
-          iconSize > 40 ? "16px" : "14px"
+          iconSize > 55 ? "22px" : "18px"
         }; height: ${
-        iconSize > 40 ? "16px" : "14px"
-      }; object-fit: contain;" alt="IQ Air" /></div>
+        iconSize > 55 ? "22px" : "18px"
+      }; object-fit: contain; filter: brightness(0) invert(1);" alt="IQ Air" /></div>
         <div style="font-size: ${
           iconSize > 40 ? "12px" : "10px"
         }; line-height: 1; margin-top: 1px;">${count}</div>
@@ -2102,11 +2184,21 @@ class IraqLeafletMap {
 
     // Create optimized icon with minimal DOM
     const optimizedIcon = L.divIcon({
-      html: `<img src="/icons/IQ Air.png" style="width: 16px; height: 16px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));" alt="${datasetName}" />`,
+      html: `<div style="
+        background: ${color}; 
+        width: 32px; 
+        height: 32px; 
+        border-radius: 50%;
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+      "><img src="/icons/IQ Air.png" style="width: 20px; height: 20px; object-fit: contain; filter: brightness(0) invert(1);" alt="${datasetName}" /></div>`,
       className: "optimized-iq-air-marker",
-      iconSize: [20, 20],
-      iconAnchor: [10, 10],
-      popupAnchor: [0, -10],
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16],
     });
 
     this._iconCache.set(cacheKey, optimizedIcon);
