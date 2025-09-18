@@ -945,8 +945,8 @@ class IraqLeafletMap {
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true,
-      maxClusterRadius: 40, // Tighter clustering for service points
-      disableClusteringAtZoom: 17, // Higher zoom before unclustering
+      maxClusterRadius: 100, // Larger clustering radius for better aggregation
+      disableClusteringAtZoom: 15, // Lower zoom threshold to keep clustering longer
     });
 
     // Separate points and polygons
@@ -1534,8 +1534,8 @@ class IraqLeafletMap {
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
-        maxClusterRadius: 60, // Slightly larger radius for dataset separation
-        disableClusteringAtZoom: 16, // Disable clustering at high zoom levels
+        maxClusterRadius: 100, // Much larger radius for better dataset clustering
+        disableClusteringAtZoom: 15, // Lower zoom threshold to keep clustering longer
       });
 
       // Batch create markers for better performance
@@ -1637,8 +1637,8 @@ class IraqLeafletMap {
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
-        maxClusterRadius: 50, // Good clustering for villages
-        disableClusteringAtZoom: 15, // Disable clustering at high zoom levels
+        maxClusterRadius: 100, // Larger clustering radius for villages
+        disableClusteringAtZoom: 15, // Lower zoom threshold to keep clustering longer
       });
 
       // Batch create markers for better performance
@@ -1740,8 +1740,8 @@ class IraqLeafletMap {
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
-        maxClusterRadius: 40, // Good clustering for air quality devices
-        disableClusteringAtZoom: 16, // Disable clustering at high zoom levels
+        maxClusterRadius: 80, // Larger clustering radius for air quality devices
+        disableClusteringAtZoom: 14, // Lower zoom threshold to keep clustering longer
       });
 
       // Batch create markers for better performance
