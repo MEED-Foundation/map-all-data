@@ -162,7 +162,7 @@ def excel_to_geojson(excel_path, output_path=None):
                     properties['name'] = f"Point {idx+1}"
                 
                 if dataset_col:
-                    properties['dataset'] = str(row[dataset_col]) if not pd.isna(row[dataset_col]) else "Unknown"
+                    properties['dataset'] = str(row[dataset_col]) if not pd.isna(row[dataset_col]) else ""
                 else:
                     properties['dataset'] = "Unknown"
                 
@@ -210,8 +210,8 @@ def excel_to_geojson(excel_path, output_path=None):
 
 def main():
     """Main function to run the conversion."""
-    excel_file = "datasets/Combined.xlsx"
-    output_file = "datasets/Combined.geojson"
+    excel_file = "datasets/villages.xlsx"
+    output_file = "datasets/villages.geojson"
     
     # Check if input file exists
     if not Path(excel_file).exists():

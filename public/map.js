@@ -5,6 +5,7 @@ class IraqLeafletMap {
     this.layerGroups = new Map();
     this.sharawaniLayers = new Map();
     this.combinedLayers = new Map();
+    this.villagesLayers = new Map();
     this.layerColors = {
       irq_admbnda_adm0_cso_itos_20190603: "#2c3e50", // Dark blue-gray
       irq_admbnda_adm1_cso_20190603: "#34495e", // Medium gray
@@ -26,6 +27,10 @@ class IraqLeafletMap {
       Compost: "#ffc107", // Professional yellow
       Investment: "#e83e8c", // Professional pink
       "IQ Air": "#6610f2", // Professional indigo
+    };
+
+    this.villagesColors = {
+      Villages: "#8e44ad", // Professional purple for villages
     };
 
     // Define coordinate system transformations
@@ -73,6 +78,9 @@ class IraqLeafletMap {
       await this.loadCombinedData();
       console.log("Combined dataset loaded");
 
+      await this.loadVillagesData();
+      console.log("Villages dataset loaded");
+
       this.setupGlobalControls();
       console.log("Global controls setup complete");
     } catch (error) {
@@ -114,6 +122,17 @@ class IraqLeafletMap {
         const combinedCheckboxes =
           document.querySelectorAll('[id^="combined-"]');
         combinedCheckboxes.forEach((checkbox) => {
+          if (!checkbox.checked) {
+            checkbox.checked = true;
+            // Trigger the change event to load the dataset
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        // Load all Villages dataset layers
+        const villagesCheckboxes =
+          document.querySelectorAll('[id^="villages-"]');
+        villagesCheckboxes.forEach((checkbox) => {
           if (!checkbox.checked) {
             checkbox.checked = true;
             // Trigger the change event to load the dataset
@@ -524,6 +543,98 @@ class IraqLeafletMap {
       console.error("Error loading Combined dataset:", error);
       this.showError(
         "Failed to load Combined dataset. Please check the server."
+      );
+    }
+  }
+
+  async loadVillagesData() {
+    try {
+      console.log("Fetching Villages dataset...");
+      const response = await fetch("/api/villages-data");
+      const villagesData = await response.json();
+      console.log("Villages dataset data:", villagesData);
+
+      const villagesControls = document.getElementById("villagesControls");
+      if (!villagesControls) {
+        throw new Error("villagesControls element not found");
+      }
+
+      if (!villagesData.success || !villagesData.data) {
+        throw new Error("Invalid villages data response");
+      }
+
+      // Add Load All / Clear All buttons for Villages data
+      const villagesButtonContainer = document.createElement("div");
+      villagesButtonContainer.style.marginBottom = "10px";
+
+      const loadAllVillagesBtn = document.createElement("button");
+      loadAllVillagesBtn.textContent = "Load Villages";
+      loadAllVillagesBtn.style.cssText =
+        "margin-right: 8px; padding: 6px 12px; font-size: 0.8em; background: #8e44ad; color: white; border: 1px solid #8e44ad; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
+
+      const clearAllVillagesBtn = document.createElement("button");
+      clearAllVillagesBtn.textContent = "Clear Villages";
+      clearAllVillagesBtn.style.cssText =
+        "padding: 6px 12px; font-size: 0.8em; background: #dc3545; color: white; border: 1px solid #dc3545; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
+
+      villagesButtonContainer.appendChild(loadAllVillagesBtn);
+      villagesButtonContainer.appendChild(clearAllVillagesBtn);
+      villagesControls.appendChild(villagesButtonContainer);
+
+      // Create checkbox for villages dataset
+      const layerItem = document.createElement("div");
+      layerItem.className = "layer-item";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "villages-Villages";
+      checkbox.value = "Villages";
+
+      const iconSpan = document.createElement("span");
+      iconSpan.className = "layer-icon";
+      iconSpan.textContent = "🏘️"; // Village icon
+      iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
+
+      const label = document.createElement("label");
+      label.htmlFor = checkbox.id;
+      label.textContent = `Villages (${villagesData.data.length} points)`;
+
+      layerItem.appendChild(checkbox);
+      layerItem.appendChild(iconSpan);
+      layerItem.appendChild(label);
+      villagesControls.appendChild(layerItem);
+
+      // Add event listener for checkbox
+      checkbox.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          this.loadVillagesDataset("Villages", villagesData.data);
+          iconSpan.style.filter = "none"; // Show in color
+        } else {
+          this.hideVillagesDataset("Villages");
+          iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
+        }
+      });
+
+      // Add event listeners for Load All / Clear All buttons
+      loadAllVillagesBtn.addEventListener("click", () => {
+        if (!checkbox.checked) {
+          checkbox.checked = true;
+          this.loadVillagesDataset("Villages", villagesData.data);
+          iconSpan.style.filter = "none"; // Show in color
+        }
+      });
+
+      clearAllVillagesBtn.addEventListener("click", () => {
+        if (checkbox.checked) {
+          checkbox.checked = false;
+          this.hideVillagesDataset("Villages");
+          iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
+        }
+      });
+    } catch (error) {
+      console.error("Error loading Villages dataset:", error);
+      this.showError(
+        "Failed to load Villages dataset. Please check the server."
       );
     }
   }
@@ -1324,6 +1435,109 @@ class IraqLeafletMap {
     }
   }
 
+  loadVillagesDataset(datasetName, dataPoints) {
+    try {
+      console.log(
+        `🏘️ Loading villages dataset: ${datasetName} (${dataPoints.length} points)`
+      );
+      const startTime = performance.now();
+
+      // Get color for villages dataset
+      const color = this.villagesColors[datasetName] || "#8e44ad";
+
+      // Create villages-specific MarkerClusterGroup
+      const clusterGroup = L.markerClusterGroup({
+        chunkedLoading: true,
+        chunkProgress: (processed, total) => {
+          if (processed % 1000 === 0 || processed === total) {
+            console.log(
+              `🏘️ Loading progress for ${datasetName}: ${processed}/${total} markers (${Math.round(
+                (processed / total) * 100
+              )}%)`
+            );
+          }
+        },
+        // Custom cluster icon specific to villages
+        iconCreateFunction: (cluster) => {
+          const count = cluster.getChildCount();
+          return this.createVillagesClusterIcon(count, datasetName, color);
+        },
+        // Performance optimizations for large village dataset
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        maxClusterRadius: 50, // Good clustering for villages
+        disableClusteringAtZoom: 15, // Disable clustering at high zoom levels
+      });
+
+      // Batch create markers for better performance
+      const markers = [];
+      const batchSize = 200; // Larger batches for villages
+
+      const processBatch = (startIndex) => {
+        const endIndex = Math.min(startIndex + batchSize, dataPoints.length);
+
+        for (let i = startIndex; i < endIndex; i++) {
+          const point = dataPoints[i];
+
+          // Create lightweight marker
+          const marker = L.marker([point.latitude, point.longitude], {
+            icon: this.createOptimizedVillagesIcon(datasetName, color),
+          });
+
+          // Lazy-load popup content (only create when needed)
+          marker.on("click", () => {
+            if (!marker.getPopup()) {
+              const popupContent = this.createVillagesPopupContent(
+                point,
+                datasetName
+              );
+              marker.bindPopup(popupContent, {
+                maxWidth: 300,
+                className: "custom-popup",
+              });
+            }
+            marker.openPopup();
+          });
+
+          markers.push(marker);
+        }
+
+        // Add batch to cluster group
+        clusterGroup.addLayers(markers.slice(startIndex, endIndex));
+
+        // Process next batch asynchronously to prevent UI blocking
+        if (endIndex < dataPoints.length) {
+          setTimeout(() => processBatch(endIndex), 5);
+        } else {
+          // All markers processed
+          const endTime = performance.now();
+          console.log(
+            `✅ Loaded ${dataPoints.length} villages in ${Math.round(
+              endTime - startTime
+            )}ms`
+          );
+
+          // Add to map and store reference
+          clusterGroup.addTo(this.map);
+          this.villagesLayers.set(datasetName, clusterGroup);
+        }
+      };
+
+      // Start processing batches
+      processBatch(0);
+    } catch (error) {
+      console.error(`❌ Error loading villages dataset ${datasetName}:`, error);
+    }
+  }
+
+  hideVillagesDataset(datasetName) {
+    const layerGroup = this.villagesLayers.get(datasetName);
+    if (layerGroup && this.map.hasLayer(layerGroup)) {
+      this.map.removeLayer(layerGroup);
+    }
+  }
+
   createCombinedIcon(datasetName, color) {
     const iconMap = {
       HERA: "🏛️", // Classical building for heritage/archaeology
@@ -1535,6 +1749,88 @@ class IraqLeafletMap {
 
     this._iconCache.set(cacheKey, optimizedIcon);
     return optimizedIcon;
+  }
+
+  createVillagesClusterIcon(count, datasetName, color) {
+    // Size classes based on count
+    let sizeClass = "small";
+    let iconSize = 35;
+    if (count > 100) {
+      sizeClass = "large";
+      iconSize = 50;
+    } else if (count > 10) {
+      sizeClass = "medium";
+      iconSize = 42;
+    }
+
+    // Create villages-themed cluster
+    return L.divIcon({
+      html: `<div class="villages-cluster-${sizeClass}" style="
+        background-color: ${color};
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        width: ${iconSize}px;
+        height: ${iconSize}px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        color: white;
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      ">
+        <div style="font-size: ${
+          iconSize > 40 ? "16px" : "14px"
+        }; line-height: 1;">🏘️</div>
+        <div style="font-size: ${
+          iconSize > 40 ? "12px" : "10px"
+        }; line-height: 1; margin-top: 1px;">${count}</div>
+      </div>`,
+      className: `villages-cluster villages-cluster-${sizeClass}`,
+      iconSize: [iconSize, iconSize],
+      iconAnchor: [iconSize / 2, iconSize / 2],
+    });
+  }
+
+  createOptimizedVillagesIcon(datasetName, color) {
+    // Cache icons to avoid recreating them
+    const cacheKey = `villages-${datasetName}-${color}`;
+    if (!this._iconCache) {
+      this._iconCache = new Map();
+    }
+
+    if (this._iconCache.has(cacheKey)) {
+      return this._iconCache.get(cacheKey);
+    }
+
+    // Create optimized icon with minimal DOM
+    const optimizedIcon = L.divIcon({
+      html: `<span style="font-size:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))">🏘️</span>`,
+      className: "optimized-villages-marker",
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+      popupAnchor: [0, -10],
+    });
+
+    this._iconCache.set(cacheKey, optimizedIcon);
+    return optimizedIcon;
+  }
+
+  createVillagesPopupContent(point, datasetName) {
+    return `
+      <div class="popup-content">
+        <h4>${point.name}</h4>
+        <p><strong>Dataset:</strong> ${datasetName}</p>
+        ${
+          point.city ? `<p><strong>City:</strong> ${point.city.trim()}</p>` : ""
+        }
+        ${point.osm_id ? `<p><strong>OSM ID:</strong> ${point.osm_id}</p>` : ""}
+        <p><strong>Location:</strong> ${point.latitude.toFixed(
+          6
+        )}, ${point.longitude.toFixed(6)}</p>
+      </div>
+    `;
   }
 
   createCombinedPopupContent(point, datasetName) {

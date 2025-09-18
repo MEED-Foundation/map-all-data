@@ -164,6 +164,46 @@ app.get("/api/sharawani/:filename", async (req, res) => {
   }
 });
 
+// API endpoint to serve Villages GeoJSON data
+app.get("/api/villages-data", (req, res) => {
+  try {
+    const geojsonPath = path.join(__dirname, "datasets", "villages.geojson");
+
+    if (!fs.existsSync(geojsonPath)) {
+      return res.status(404).json({
+        error:
+          "villages.geojson file not found. Please make sure the villages data is available.",
+      });
+    }
+
+    // Read the GeoJSON file
+    const geojsonData = fs.readFileSync(geojsonPath, "utf8");
+    const geojson = JSON.parse(geojsonData);
+
+    // Extract data in the format expected by the frontend
+    const formattedData = geojson.features.map((feature) => ({
+      name:
+        feature.properties.name ||
+        feature.properties.Name ||
+        `Village ${feature.properties.osm_id || "Unknown"}`,
+      latitude: feature.properties.latitude,
+      longitude: feature.properties.longitude,
+      city: feature.properties.city,
+      osm_id: feature.properties.osm_id,
+      dataset: "Villages",
+    }));
+
+    res.json({
+      success: true,
+      count: formattedData.length,
+      data: formattedData,
+    });
+  } catch (error) {
+    console.error("Error reading villages.geojson:", error);
+    res.status(500).json({ error: "Error reading villages.geojson file" });
+  }
+});
+
 // API endpoint to serve Combined GeoJSON data (much faster than Excel!)
 app.get("/api/combined-data", (req, res) => {
   try {
