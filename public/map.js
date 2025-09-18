@@ -379,17 +379,17 @@ class IraqLeafletMap {
 
         // Get the icon for this layer
         const iconMap = {
-          Cemetary: "⛼",
-          education: "🎓",
-          "Fuel Station": "⛽",
-          Healthcare: "🏥",
-          Suburbs: "🏘️",
+          Cemetary: "/icons/village.jpg",
+          education: "/icons/education.png",
+          "Fuel Station": "/icons/fuel-station.jpg",
+          Healthcare: "/icons/healthcare.png",
+          Suburbs: "/icons/village.jpg",
         };
-        const icon = iconMap[sharawaniFile.name] || "📍";
+        const iconPath = iconMap[sharawaniFile.name] || "/icons/village.jpg";
 
         const iconSpan = document.createElement("span");
         iconSpan.className = "layer-icon";
-        iconSpan.textContent = icon;
+        iconSpan.innerHTML = `<img src="${iconPath}" style="width: 16px; height: 16px; object-fit: contain;" alt="${sharawaniFile.name}" />`;
         iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
 
         const label = document.createElement("label");
@@ -499,17 +499,17 @@ class IraqLeafletMap {
 
         // Get the icon for this dataset
         const iconMap = {
-          HERA: "🏛️",
-          Compost: "♻️",
-          Investment: "💰",
-          "IQ Air": "🌬️",
-          default: "📊",
+          HERA: "/icons/investment.png",
+          Compost: "/icons/compost.png",
+          Investment: "/icons/investment.png",
+          "IQ Air": "/icons/IQ Air.png",
+          default: "/icons/investment.png",
         };
-        const icon = iconMap[dataset] || iconMap.default;
+        const iconPath = iconMap[dataset] || iconMap.default;
 
         const iconSpan = document.createElement("span");
         iconSpan.className = "layer-icon";
-        iconSpan.textContent = icon;
+        iconSpan.innerHTML = `<img src="${iconPath}" style="width: 16px; height: 16px; object-fit: contain;" alt="${dataset}" />`;
         iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
 
         const label = document.createElement("label");
@@ -610,7 +610,7 @@ class IraqLeafletMap {
 
       const iconSpan = document.createElement("span");
       iconSpan.className = "layer-icon";
-      iconSpan.textContent = "🏘️"; // Village icon
+      iconSpan.innerHTML = `<img src="/icons/village.jpg" style="width: 16px; height: 16px; object-fit: contain;" alt="Villages" />`;
       iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
 
       const label = document.createElement("label");
@@ -702,7 +702,7 @@ class IraqLeafletMap {
 
       const iconSpan = document.createElement("span");
       iconSpan.className = "layer-icon";
-      iconSpan.textContent = "🌬️"; // Air/wind icon for IQ Air devices
+      iconSpan.innerHTML = `<img src="/icons/IQ Air.png" style="width: 16px; height: 16px; object-fit: contain;" alt="IQ Air" />`;
       iconSpan.style.filter = "grayscale(100%)"; // Start as grayscale
 
       const label = document.createElement("label");
@@ -1159,14 +1159,14 @@ class IraqLeafletMap {
 
   createSharawaniIcon(layerName, color) {
     const iconMap = {
-      Cemetary: "⛼", // Cemetery symbol
-      education: "🎓", // Graduation cap
-      "Fuel Station": "⛽", // Fuel pump
-      Healthcare: "🏥", // Hospital
-      Suburbs: "🏘️", // Houses
+      Cemetary: "/icons/village.jpg", // Using village icon for cemetery
+      education: "/icons/education.png", // Graduation cap
+      "Fuel Station": "/icons/fuel-station.jpg", // Fuel pump
+      Healthcare: "/icons/healthcare.png", // Hospital
+      Suburbs: "/icons/village.jpg", // Houses
     };
 
-    const icon = iconMap[layerName] || "📍";
+    const iconPath = iconMap[layerName] || "/icons/village.jpg";
 
     return L.divIcon({
       html: `<div style="
@@ -1176,9 +1176,8 @@ class IraqLeafletMap {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-      ">${icon}</div>`,
+      "><img src="${iconPath}" style="width: 20px; height: 20px; object-fit: contain;" alt="${layerName}" /></div>`,
       className: "category-marker",
       iconSize: [24, 24],
       iconAnchor: [12, 12],
@@ -1802,21 +1801,21 @@ class IraqLeafletMap {
     }
 
     const iconMap = {
-      HERA: "🏛️",
-      "HERA (Orchards)": "🌳",
-      "HERA (Wheat)": "🌾",
-      Compost: "♻️",
-      Investment: "💰",
-      "Investment Short": "💰",
-      "IQ Air": "🌬️",
-      default: "📊",
+      HERA: "/icons/investment.png", // Using investment icon for HERA
+      "HERA (Orchards)": "/icons/orchard.png",
+      "HERA (Wheat)": "/icons/wheat.png",
+      Compost: "/icons/compost.png",
+      Investment: "/icons/investment.png",
+      "Investment Short": "/icons/investment.png",
+      "IQ Air": "/icons/IQ Air.png",
+      default: "/icons/investment.png",
     };
 
-    const icon = iconMap[datasetName] || iconMap.default;
+    const iconPath = iconMap[datasetName] || iconMap.default;
 
     // Create optimized icon with minimal DOM
     const optimizedIcon = L.divIcon({
-      html: `<span style="font-size:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))">${icon}</span>`,
+      html: `<img src="${iconPath}" style="width: 16px; height: 16px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));" alt="${datasetName}" />`,
       className: "optimized-marker",
       iconSize: [20, 20],
       iconAnchor: [10, 10],
@@ -1830,17 +1829,17 @@ class IraqLeafletMap {
   createDatasetClusterIcon(count, datasetName, color) {
     // Get dataset-specific icon and styling
     const iconMap = {
-      HERA: "🏛️",
-      "HERA (Orchards)": "🌳",
-      "HERA (Wheat)": "🌾",
-      Compost: "♻️",
-      Investment: "💰",
-      "Investment Short": "💰",
-      "IQ Air": "🌬️",
-      default: "📊",
+      HERA: "/icons/investment.png",
+      "HERA (Orchards)": "/icons/orchard.png",
+      "HERA (Wheat)": "/icons/wheat.png",
+      Compost: "/icons/compost.png",
+      Investment: "/icons/investment.png",
+      "Investment Short": "/icons/investment.png",
+      "IQ Air": "/icons/IQ Air.png",
+      default: "/icons/investment.png",
     };
 
-    const datasetIcon = iconMap[datasetName] || iconMap.default;
+    const datasetIconPath = iconMap[datasetName] || iconMap.default;
 
     // Size classes based on count
     let sizeClass = "small";
@@ -1870,9 +1869,11 @@ class IraqLeafletMap {
         font-weight: bold;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
       ">
-        <div style="font-size: ${
-          iconSize > 40 ? "16px" : "14px"
-        }; line-height: 1;">${datasetIcon}</div>
+        <div style="line-height: 1;"><img src="${datasetIconPath}" style="width: ${
+        iconSize > 40 ? "16px" : "14px"
+      }; height: ${
+        iconSize > 40 ? "16px" : "14px"
+      }; object-fit: contain;" alt="${datasetName}" /></div>
         <div style="font-size: ${
           iconSize > 40 ? "12px" : "10px"
         }; line-height: 1; margin-top: 1px;">${count}</div>
@@ -1888,14 +1889,14 @@ class IraqLeafletMap {
   createSharawaniClusterIcon(count, layerName, color) {
     // Get Sharawani-specific icon and styling
     const iconMap = {
-      Cemetary: "⛼",
-      education: "🎓",
-      "Fuel Station": "⛽",
-      Healthcare: "🏥",
-      Suburbs: "🏘️",
+      Cemetary: "/icons/village.jpg",
+      education: "/icons/education.png",
+      "Fuel Station": "/icons/fuel-station.jpg",
+      Healthcare: "/icons/healthcare.png",
+      Suburbs: "/icons/village.jpg",
     };
 
-    const layerIcon = iconMap[layerName] || "📍";
+    const layerIconPath = iconMap[layerName] || "/icons/village.jpg";
 
     // Size classes based on count (smaller clusters for service points)
     let sizeClass = "small";
@@ -1925,9 +1926,11 @@ class IraqLeafletMap {
         font-weight: bold;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
       ">
-        <div style="font-size: ${
-          iconSize > 35 ? "14px" : "12px"
-        }; line-height: 1;">${layerIcon}</div>
+        <div style="line-height: 1;"><img src="${layerIconPath}" style="width: ${
+        iconSize > 35 ? "14px" : "12px"
+      }; height: ${
+        iconSize > 35 ? "14px" : "12px"
+      }; object-fit: contain;" alt="${layerName}" /></div>
         <div style="font-size: ${
           iconSize > 35 ? "10px" : "9px"
         }; line-height: 1; margin-top: 1px;">${count}</div>
@@ -1952,18 +1955,18 @@ class IraqLeafletMap {
     }
 
     const iconMap = {
-      Cemetary: "⛼",
-      education: "🎓",
-      "Fuel Station": "⛽",
-      Healthcare: "🏥",
-      Suburbs: "🏘️",
+      Cemetary: "/icons/village.jpg",
+      education: "/icons/education.png",
+      "Fuel Station": "/icons/fuel-station.jpg",
+      Healthcare: "/icons/healthcare.png",
+      Suburbs: "/icons/village.jpg",
     };
 
-    const icon = iconMap[layerName] || "📍";
+    const iconPath = iconMap[layerName] || "/icons/village.jpg";
 
     // Create optimized icon with minimal DOM
     const optimizedIcon = L.divIcon({
-      html: `<span style="font-size:18px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4))">${icon}</span>`,
+      html: `<img src="${iconPath}" style="width: 18px; height: 18px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));" alt="${layerName}" />`,
       className: "optimized-sharawani-marker",
       iconSize: [24, 24],
       iconAnchor: [12, 12],
@@ -2003,9 +2006,11 @@ class IraqLeafletMap {
         font-weight: bold;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
       ">
-        <div style="font-size: ${
+        <div style="line-height: 1;"><img src="/icons/village.jpg" style="width: ${
           iconSize > 40 ? "16px" : "14px"
-        }; line-height: 1;">🏘️</div>
+        }; height: ${
+        iconSize > 40 ? "16px" : "14px"
+      }; object-fit: contain;" alt="Villages" /></div>
         <div style="font-size: ${
           iconSize > 40 ? "12px" : "10px"
         }; line-height: 1; margin-top: 1px;">${count}</div>
@@ -2029,7 +2034,7 @@ class IraqLeafletMap {
 
     // Create optimized icon with minimal DOM
     const optimizedIcon = L.divIcon({
-      html: `<span style="font-size:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))">🏘️</span>`,
+      html: `<img src="/icons/village.jpg" style="width: 16px; height: 16px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));" alt="${datasetName}" />`,
       className: "optimized-villages-marker",
       iconSize: [20, 20],
       iconAnchor: [10, 10],
@@ -2069,9 +2074,11 @@ class IraqLeafletMap {
         font-weight: bold;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
       ">
-        <div style="font-size: ${
+        <div style="line-height: 1;"><img src="/icons/IQ Air.png" style="width: ${
           iconSize > 40 ? "16px" : "14px"
-        }; line-height: 1;">🌬️</div>
+        }; height: ${
+        iconSize > 40 ? "16px" : "14px"
+      }; object-fit: contain;" alt="IQ Air" /></div>
         <div style="font-size: ${
           iconSize > 40 ? "12px" : "10px"
         }; line-height: 1; margin-top: 1px;">${count}</div>
@@ -2095,7 +2102,7 @@ class IraqLeafletMap {
 
     // Create optimized icon with minimal DOM
     const optimizedIcon = L.divIcon({
-      html: `<span style="font-size:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))">🌬️</span>`,
+      html: `<img src="/icons/IQ Air.png" style="width: 16px; height: 16px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));" alt="${datasetName}" />`,
       className: "optimized-iq-air-marker",
       iconSize: [20, 20],
       iconAnchor: [10, 10],
