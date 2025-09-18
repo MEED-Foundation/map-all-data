@@ -17,7 +17,7 @@ class IraqLeafletMap {
       education: "#0d6efd", // Professional blue
       "Fuel Station": "#fd7e14", // Professional orange
       Healthcare: "#dc3545", // Professional red
-      Suburbs: "#6f42c1", // Professional purple
+      Suburbs: "#FF8A65", // Professional purple
     };
 
     this.combinedColors = {
@@ -871,7 +871,7 @@ class IraqLeafletMap {
             opacity: 1,
             color: "#ffffff",
             dashArray: "",
-            fillOpacity: 0.7,
+            fillOpacity: 0.5,
             pane: "sharawaniPolygonPane",
           },
           onEachFeature: (feature, layer) =>
@@ -911,7 +911,7 @@ class IraqLeafletMap {
             opacity: 1,
             color: "#ffffff",
             dashArray: "",
-            fillOpacity: 0.7,
+            fillOpacity: 0.5,
             pane: "sharawaniPolygonPane",
           };
         }
@@ -1139,8 +1139,8 @@ class IraqLeafletMap {
         weight: 4,
         color: "#2c3e50",
         dashArray: "",
-        fillOpacity: 0.9,
-        fillColor: this.lightenColor(layerColor, 0.3),
+        fillOpacity: 0.8,
+        fillColor: this.lightenColor(layerColor, 0.4),
       });
 
       if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
@@ -1165,7 +1165,7 @@ class IraqLeafletMap {
         opacity: 1,
         color: "#ffffff",
         dashArray: "",
-        fillOpacity: 0.7,
+        fillOpacity: 0.5,
       });
     }
   }
@@ -1256,7 +1256,7 @@ class IraqLeafletMap {
       content += `<div style="margin-bottom: 4px;"><strong>Coordinates:</strong> ${properties.Lat}, ${properties.Long}</div>`;
     }
 
-    // Suburbs specific fields
+    // Suburbs and Cemeteries specific fields
     if (properties.NO_) {
       content += `<div style="margin-bottom: 4px;"><strong>Area Number:</strong> ${properties.NO_}</div>`;
     }
@@ -1265,6 +1265,16 @@ class IraqLeafletMap {
       const areaSqM = Math.round(properties.SHAPE_area);
       const areaSqKm = (areaSqM / 1000000).toFixed(2);
       content += `<div style="margin-bottom: 4px;"><strong>Area:</strong> ${areaSqKm} km² (${areaSqM.toLocaleString()} m²)</div>`;
+    }
+
+    // Add any additional properties that might be useful
+    if (properties.OBJECTID) {
+      content += `<div style="margin-bottom: 4px;"><strong>ID:</strong> ${properties.OBJECTID}</div>`;
+    }
+
+    if (properties.Shape_Length) {
+      const perimeter = Math.round(properties.Shape_Length);
+      content += `<div style="margin-bottom: 4px;"><strong>Perimeter:</strong> ${perimeter.toLocaleString()} m</div>`;
     }
 
     return content;
@@ -1945,6 +1955,27 @@ class IraqLeafletMap {
       "#e67e22",
     ];
     return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  lightenColor(color, amount) {
+    // Convert hex to RGB
+    const hex = color.replace("#", "");
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    // Lighten the color
+    const newR = Math.min(255, Math.floor(r + (255 - r) * amount));
+    const newG = Math.min(255, Math.floor(g + (255 - g) * amount));
+    const newB = Math.min(255, Math.floor(b + (255 - b) * amount));
+
+    // Convert back to hex
+    const toHex = (n) => {
+      const hex = n.toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    };
+
+    return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
   }
 
   showLoading(show, message = "Loading...") {
