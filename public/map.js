@@ -102,6 +102,152 @@ class IraqLeafletMap {
   }
 
   setupGlobalControls() {
+    // Load All Administrative Boundaries button
+    const loadAllAdminBtn = document.getElementById("loadAllAdminBtn");
+    if (loadAllAdminBtn) {
+      loadAllAdminBtn.addEventListener("click", () => {
+        console.log("🏛️ Loading all administrative boundaries...");
+
+        // Load all administrative layers
+        const adminCheckboxes = document.querySelectorAll('[id^="layer-"]');
+        adminCheckboxes.forEach((checkbox) => {
+          if (!checkbox.checked) {
+            checkbox.checked = true;
+            const layerName = checkbox.value;
+            this.loadLayer(layerName);
+          }
+        });
+
+        // Load villages
+        const villagesCheckboxes =
+          document.querySelectorAll('[id^="villages-"]');
+        villagesCheckboxes.forEach((checkbox) => {
+          if (!checkbox.checked) {
+            checkbox.checked = true;
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        this.updateButtonState(loadAllAdminBtn, "Loading...", "#6c757d", true);
+      });
+    }
+
+    // Clear All Administrative Boundaries button
+    const clearAllAdminBtn = document.getElementById("clearAllAdminBtn");
+    if (clearAllAdminBtn) {
+      clearAllAdminBtn.addEventListener("click", () => {
+        console.log("🏛️ Clearing all administrative boundaries...");
+
+        // Clear all administrative layers
+        const adminCheckboxes = document.querySelectorAll('[id^="layer-"]');
+        adminCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            const layerName = checkbox.value;
+            this.hideLayer(layerName);
+          }
+        });
+
+        // Clear villages
+        const villagesCheckboxes =
+          document.querySelectorAll('[id^="villages-"]');
+        villagesCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        this.updateButtonState(
+          clearAllAdminBtn,
+          "Clearing...",
+          "#6c757d",
+          true
+        );
+      });
+    }
+
+    // Load All Data Layers button
+    const loadAllDataBtn = document.getElementById("loadAllDataBtn");
+    if (loadAllDataBtn) {
+      loadAllDataBtn.addEventListener("click", () => {
+        console.log("📊 Loading all data layers...");
+
+        // Load all Sharawani layers
+        const sharawaniCheckboxes =
+          document.querySelectorAll('[id^="sharawani-"]');
+        sharawaniCheckboxes.forEach((checkbox) => {
+          if (!checkbox.checked) {
+            checkbox.checked = true;
+            const layerName = checkbox.value;
+            this.loadSharawaniLayer(layerName);
+          }
+        });
+
+        // Load all Combined dataset layers
+        const combinedCheckboxes =
+          document.querySelectorAll('[id^="combined-"]');
+        combinedCheckboxes.forEach((checkbox) => {
+          if (!checkbox.checked) {
+            checkbox.checked = true;
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        // Load all IQ Air layers
+        const iqAirCheckboxes = document.querySelectorAll('[id^="iq-air-"]');
+        iqAirCheckboxes.forEach((checkbox) => {
+          if (!checkbox.checked) {
+            checkbox.checked = true;
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        this.updateButtonState(loadAllDataBtn, "Loading...", "#6c757d", true);
+      });
+    }
+
+    // Clear All Data Layers button
+    const clearAllDataBtn = document.getElementById("clearAllDataBtn");
+    if (clearAllDataBtn) {
+      clearAllDataBtn.addEventListener("click", () => {
+        console.log("📊 Clearing all data layers...");
+
+        // Clear all Sharawani layers
+        const sharawaniCheckboxes =
+          document.querySelectorAll('[id^="sharawani-"]');
+        sharawaniCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            const layerName = checkbox.value;
+            this.hideSharawaniLayer(layerName);
+          }
+        });
+
+        // Clear all Combined dataset layers
+        const combinedCheckboxes =
+          document.querySelectorAll('[id^="combined-"]');
+        combinedCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        // Clear all IQ Air layers
+        const iqAirCheckboxes = document.querySelectorAll('[id^="iq-air-"]');
+        iqAirCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        this.updateButtonState(clearAllDataBtn, "Clearing...", "#6c757d", true);
+      });
+    }
+
+    // Load All button (everything)
     const loadEverythingBtn = document.getElementById("loadEverythingBtn");
     if (loadEverythingBtn) {
       loadEverythingBtn.addEventListener("click", () => {
@@ -134,45 +280,118 @@ class IraqLeafletMap {
         combinedCheckboxes.forEach((checkbox) => {
           if (!checkbox.checked) {
             checkbox.checked = true;
-            // Trigger the change event to load the dataset
             checkbox.dispatchEvent(new Event("change"));
           }
         });
 
-        // Load all Villages dataset layers
+        // Load all Villages layers
         const villagesCheckboxes =
           document.querySelectorAll('[id^="villages-"]');
         villagesCheckboxes.forEach((checkbox) => {
           if (!checkbox.checked) {
             checkbox.checked = true;
-            // Trigger the change event to load the dataset
             checkbox.dispatchEvent(new Event("change"));
           }
         });
 
-        // Load all IQ Air dataset layers
+        // Load all IQ Air layers
         const iqAirCheckboxes = document.querySelectorAll('[id^="iq-air-"]');
         iqAirCheckboxes.forEach((checkbox) => {
           if (!checkbox.checked) {
             checkbox.checked = true;
-            // Trigger the change event to load the dataset
             checkbox.dispatchEvent(new Event("change"));
           }
         });
 
-        // Update button text temporarily
-        const originalText = loadEverythingBtn.textContent;
-        loadEverythingBtn.textContent = "Loading...";
-        loadEverythingBtn.disabled = true;
-        loadEverythingBtn.style.background = "#6c757d";
-
-        setTimeout(() => {
-          loadEverythingBtn.textContent = originalText;
-          loadEverythingBtn.disabled = false;
-          loadEverythingBtn.style.background = "#2c3e50";
-        }, 2000);
+        this.updateButtonState(
+          loadEverythingBtn,
+          "Loading...",
+          "#6c757d",
+          true
+        );
       });
     }
+
+    // Clear All button (everything)
+    const clearEverythingBtn = document.getElementById("clearEverythingBtn");
+    if (clearEverythingBtn) {
+      clearEverythingBtn.addEventListener("click", () => {
+        console.log("🌍 Clearing all layers...");
+
+        // Clear all administrative layers
+        const adminCheckboxes = document.querySelectorAll('[id^="layer-"]');
+        adminCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            const layerName = checkbox.value;
+            this.hideLayer(layerName);
+          }
+        });
+
+        // Clear all Sharawani layers
+        const sharawaniCheckboxes =
+          document.querySelectorAll('[id^="sharawani-"]');
+        sharawaniCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            const layerName = checkbox.value;
+            this.hideSharawaniLayer(layerName);
+          }
+        });
+
+        // Clear all Combined dataset layers
+        const combinedCheckboxes =
+          document.querySelectorAll('[id^="combined-"]');
+        combinedCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        // Clear all Villages layers
+        const villagesCheckboxes =
+          document.querySelectorAll('[id^="villages-"]');
+        villagesCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        // Clear all IQ Air layers
+        const iqAirCheckboxes = document.querySelectorAll('[id^="iq-air-"]');
+        iqAirCheckboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            checkbox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        this.updateButtonState(
+          clearEverythingBtn,
+          "Clearing...",
+          "#6c757d",
+          true
+        );
+      });
+    }
+  }
+
+  updateButtonState(button, text, backgroundColor, disabled) {
+    const originalText = button.textContent;
+    const originalBackground = button.style.background;
+    const originalDisabled = button.disabled;
+
+    button.textContent = text;
+    button.style.background = backgroundColor;
+    button.disabled = disabled;
+
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.style.background = originalBackground;
+      button.disabled = originalDisabled;
+    }, 2000);
   }
 
   initMap() {
@@ -259,24 +478,6 @@ class IraqLeafletMap {
       }
       layerControls.innerHTML = "";
 
-      // Add Load All / Clear All buttons
-      const buttonContainer = document.createElement("div");
-      buttonContainer.style.marginBottom = "10px";
-
-      const loadAllBtn = document.createElement("button");
-      loadAllBtn.textContent = "Load All";
-      loadAllBtn.style.cssText =
-        "margin-right: 8px; padding: 6px 12px; font-size: 0.8em; background: #0d6efd; color: white; border: 1px solid #0d6efd; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
-
-      const clearAllBtn = document.createElement("button");
-      clearAllBtn.textContent = "Clear All";
-      clearAllBtn.style.cssText =
-        "padding: 6px 12px; font-size: 0.8em; background: #dc3545; color: white; border: 1px solid #dc3545; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
-
-      buttonContainer.appendChild(loadAllBtn);
-      buttonContainer.appendChild(clearAllBtn);
-      layerControls.appendChild(buttonContainer);
-
       geojsonFiles.forEach((geojsonFile, index) => {
         const layerItem = document.createElement("div");
         layerItem.className = "layer-item";
@@ -290,7 +491,17 @@ class IraqLeafletMap {
 
         const label = document.createElement("label");
         label.htmlFor = `layer-${geojsonFile.name}`;
-        label.textContent = `${geojsonFile.displayName} (${geojsonFile.adminLevel})`;
+
+        // Map admin levels to user-friendly names
+        let adminLevelName = geojsonFile.adminLevel;
+        if (geojsonFile.adminLevel === "ADM0") adminLevelName = "Country";
+        else if (geojsonFile.adminLevel === "ADM1")
+          adminLevelName = "Governorate";
+        else if (geojsonFile.adminLevel === "ADM2") adminLevelName = "District";
+        else if (geojsonFile.adminLevel === "ADM3")
+          adminLevelName = "Sub-district";
+
+        label.textContent = `${geojsonFile.displayName} (${adminLevelName})`;
 
         layerItem.appendChild(checkbox);
         layerItem.appendChild(label);
@@ -308,27 +519,6 @@ class IraqLeafletMap {
         if (geojsonFile.adminLevel === "ADM1") {
           this.loadLayer(geojsonFile.name);
         }
-      });
-
-      // Add event listeners for Load All / Clear All buttons
-      loadAllBtn.addEventListener("click", () => {
-        geojsonFiles.forEach((file) => {
-          const checkbox = document.getElementById(`layer-${file.name}`);
-          if (checkbox && !checkbox.checked) {
-            checkbox.checked = true;
-            this.loadLayer(file.name);
-          }
-        });
-      });
-
-      clearAllBtn.addEventListener("click", () => {
-        geojsonFiles.forEach((file) => {
-          const checkbox = document.getElementById(`layer-${file.name}`);
-          if (checkbox && checkbox.checked) {
-            checkbox.checked = false;
-            this.hideLayer(file.name);
-          }
-        });
       });
     } catch (error) {
       console.error("Error loading available layers:", error);
@@ -350,24 +540,6 @@ class IraqLeafletMap {
         throw new Error("sharawaniControls element not found");
       }
       sharawaniControls.innerHTML = "";
-
-      // Add Load All / Clear All buttons for Sharawani
-      const sharawaniButtonContainer = document.createElement("div");
-      sharawaniButtonContainer.style.marginBottom = "10px";
-
-      const loadAllSharawaniBtn = document.createElement("button");
-      loadAllSharawaniBtn.textContent = "Load All";
-      loadAllSharawaniBtn.style.cssText =
-        "margin-right: 8px; padding: 6px 12px; font-size: 0.8em; background: #6f42c1; color: white; border: 1px solid #6f42c1; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
-
-      const clearAllSharawaniBtn = document.createElement("button");
-      clearAllSharawaniBtn.textContent = "Clear All";
-      clearAllSharawaniBtn.style.cssText =
-        "padding: 6px 12px; font-size: 0.8em; background: #dc3545; color: white; border: 1px solid #dc3545; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
-
-      sharawaniButtonContainer.appendChild(loadAllSharawaniBtn);
-      sharawaniButtonContainer.appendChild(clearAllSharawaniBtn);
-      sharawaniControls.appendChild(sharawaniButtonContainer);
 
       sharawaniFiles.forEach((sharawaniFile) => {
         const layerItem = document.createElement("div");
@@ -425,31 +597,6 @@ class IraqLeafletMap {
           }
         });
       });
-
-      // Add event listeners for Sharawani Load All / Clear All buttons
-      loadAllSharawaniBtn.addEventListener("click", () => {
-        sharawaniFiles.forEach((file) => {
-          const checkbox = document.getElementById(`sharawani-${file.name}`);
-          const iconSpan = checkbox?.parentElement.querySelector(".layer-icon");
-          if (checkbox && !checkbox.checked) {
-            checkbox.checked = true;
-            this.loadSharawaniLayer(file.name);
-            if (iconSpan) iconSpan.style.filter = "none"; // Show in color
-          }
-        });
-      });
-
-      clearAllSharawaniBtn.addEventListener("click", () => {
-        sharawaniFiles.forEach((file) => {
-          const checkbox = document.getElementById(`sharawani-${file.name}`);
-          const iconSpan = checkbox?.parentElement.querySelector(".layer-icon");
-          if (checkbox && checkbox.checked) {
-            checkbox.checked = false;
-            this.hideSharawaniLayer(file.name);
-            if (iconSpan) iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
-          }
-        });
-      });
     } catch (error) {
       console.error("Error loading Sharawani layers:", error);
       this.showError(
@@ -469,6 +616,7 @@ class IraqLeafletMap {
       if (!combinedControls) {
         throw new Error("combinedControls element not found");
       }
+      combinedControls.innerHTML = "";
 
       if (!combinedData.success || !combinedData.data) {
         throw new Error("Invalid combined data response");
@@ -482,24 +630,6 @@ class IraqLeafletMap {
         }
         datasetGroups[point.dataset].push(point);
       });
-
-      // Add Load All / Clear All buttons for Combined data
-      const combinedButtonContainer = document.createElement("div");
-      combinedButtonContainer.style.marginBottom = "10px";
-
-      const loadAllCombinedBtn = document.createElement("button");
-      loadAllCombinedBtn.textContent = "Load All";
-      loadAllCombinedBtn.style.cssText =
-        "margin-right: 8px; padding: 6px 12px; font-size: 0.8em; background: #17a2b8; color: white; border: 1px solid #17a2b8; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
-
-      const clearAllCombinedBtn = document.createElement("button");
-      clearAllCombinedBtn.textContent = "Clear All";
-      clearAllCombinedBtn.style.cssText =
-        "padding: 6px 12px; font-size: 0.8em; background: #dc3545; color: white; border: 1px solid #dc3545; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
-
-      combinedButtonContainer.appendChild(loadAllCombinedBtn);
-      combinedButtonContainer.appendChild(clearAllCombinedBtn);
-      combinedControls.appendChild(combinedButtonContainer);
 
       // Create checkboxes for each dataset
       Object.keys(datasetGroups).forEach((dataset) => {
@@ -560,31 +690,6 @@ class IraqLeafletMap {
           }
         });
       });
-
-      // Add event listeners for Load All / Clear All buttons
-      loadAllCombinedBtn.addEventListener("click", () => {
-        Object.keys(datasetGroups).forEach((dataset) => {
-          const checkbox = document.getElementById(`combined-${dataset}`);
-          const iconSpan = checkbox?.parentElement.querySelector(".layer-icon");
-          if (checkbox && !checkbox.checked) {
-            checkbox.checked = true;
-            this.loadCombinedDataset(dataset, datasetGroups[dataset]);
-            if (iconSpan) iconSpan.style.filter = "none"; // Show in color
-          }
-        });
-      });
-
-      clearAllCombinedBtn.addEventListener("click", () => {
-        Object.keys(datasetGroups).forEach((dataset) => {
-          const checkbox = document.getElementById(`combined-${dataset}`);
-          const iconSpan = checkbox?.parentElement.querySelector(".layer-icon");
-          if (checkbox && checkbox.checked) {
-            checkbox.checked = false;
-            this.hideCombinedDataset(dataset);
-            if (iconSpan) iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
-          }
-        });
-      });
     } catch (error) {
       console.error("Error loading Combined dataset:", error);
       this.showError(
@@ -604,28 +709,11 @@ class IraqLeafletMap {
       if (!villagesControls) {
         throw new Error("villagesControls element not found");
       }
+      villagesControls.innerHTML = "";
 
       if (!villagesData.success || !villagesData.data) {
         throw new Error("Invalid villages data response");
       }
-
-      // Add Load All / Clear All buttons for Villages data
-      const villagesButtonContainer = document.createElement("div");
-      villagesButtonContainer.style.marginBottom = "10px";
-
-      const loadAllVillagesBtn = document.createElement("button");
-      loadAllVillagesBtn.textContent = "Load Villages";
-      loadAllVillagesBtn.style.cssText =
-        "margin-right: 8px; padding: 6px 12px; font-size: 0.8em; background: #8e44ad; color: white; border: 1px solid #8e44ad; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
-
-      const clearAllVillagesBtn = document.createElement("button");
-      clearAllVillagesBtn.textContent = "Clear Villages";
-      clearAllVillagesBtn.style.cssText =
-        "padding: 6px 12px; font-size: 0.8em; background: #dc3545; color: white; border: 1px solid #dc3545; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
-
-      villagesButtonContainer.appendChild(loadAllVillagesBtn);
-      villagesButtonContainer.appendChild(clearAllVillagesBtn);
-      villagesControls.appendChild(villagesButtonContainer);
 
       // Create checkbox for villages dataset
       const layerItem = document.createElement("div");
@@ -654,7 +742,7 @@ class IraqLeafletMap {
 
       const label = document.createElement("label");
       label.htmlFor = checkbox.id;
-      label.textContent = `Villages (${villagesData.data.length} points)`;
+      label.textContent = "Villages";
 
       layerItem.appendChild(checkbox);
       layerItem.appendChild(iconSpan);
@@ -667,23 +755,6 @@ class IraqLeafletMap {
           this.loadVillagesDataset("Villages", villagesData.data);
           iconSpan.style.filter = "none"; // Show in color
         } else {
-          this.hideVillagesDataset("Villages");
-          iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
-        }
-      });
-
-      // Add event listeners for Load All / Clear All buttons
-      loadAllVillagesBtn.addEventListener("click", () => {
-        if (!checkbox.checked) {
-          checkbox.checked = true;
-          this.loadVillagesDataset("Villages", villagesData.data);
-          iconSpan.style.filter = "none"; // Show in color
-        }
-      });
-
-      clearAllVillagesBtn.addEventListener("click", () => {
-        if (checkbox.checked) {
-          checkbox.checked = false;
           this.hideVillagesDataset("Villages");
           iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
         }
@@ -707,28 +778,11 @@ class IraqLeafletMap {
       if (!iqAirControls) {
         throw new Error("iqAirControls element not found");
       }
+      iqAirControls.innerHTML = "";
 
       if (!iqAirData.success || !iqAirData.data) {
         throw new Error("Invalid IQ Air data response");
       }
-
-      // Add Load All / Clear All buttons for IQ Air data
-      const iqAirButtonContainer = document.createElement("div");
-      iqAirButtonContainer.style.marginBottom = "10px";
-
-      const loadAllIqAirBtn = document.createElement("button");
-      loadAllIqAirBtn.textContent = "Load IQ Air Devices";
-      loadAllIqAirBtn.style.cssText =
-        "margin-right: 8px; padding: 6px 12px; font-size: 0.8em; background: #20c997; color: white; border: 1px solid #20c997; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
-
-      const clearAllIqAirBtn = document.createElement("button");
-      clearAllIqAirBtn.textContent = "Clear IQ Air Devices";
-      clearAllIqAirBtn.style.cssText =
-        "padding: 6px 12px; font-size: 0.8em; background: #dc3545; color: white; border: 1px solid #dc3545; border-radius: 3px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease;";
-
-      iqAirButtonContainer.appendChild(loadAllIqAirBtn);
-      iqAirButtonContainer.appendChild(clearAllIqAirBtn);
-      iqAirControls.appendChild(iqAirButtonContainer);
 
       // Create checkbox for IQ Air devices dataset
       const layerItem = document.createElement("div");
@@ -770,23 +824,6 @@ class IraqLeafletMap {
           this.loadIqAirDataset("IQ Air", iqAirData.data);
           iconSpan.style.filter = "none"; // Show in color
         } else {
-          this.hideIqAirDataset("IQ Air");
-          iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
-        }
-      });
-
-      // Add event listeners for Load All / Clear All buttons
-      loadAllIqAirBtn.addEventListener("click", () => {
-        if (!checkbox.checked) {
-          checkbox.checked = true;
-          this.loadIqAirDataset("IQ Air", iqAirData.data);
-          iconSpan.style.filter = "none"; // Show in color
-        }
-      });
-
-      clearAllIqAirBtn.addEventListener("click", () => {
-        if (checkbox.checked) {
-          checkbox.checked = false;
           this.hideIqAirDataset("IQ Air");
           iconSpan.style.filter = "grayscale(100%)"; // Show in grayscale
         }

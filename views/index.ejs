@@ -37,54 +37,131 @@
         <h1>Iraq Administrative Map</h1>
 
         <div style="margin-bottom: 15px; text-align: center">
-          <button
-            id="loadEverythingBtn"
-            style="
-              padding: 10px 20px;
-              font-size: 0.9em;
-              background: #2c3e50;
-              color: white;
-              border: 1px solid #34495e;
-              border-radius: 3px;
-              cursor: pointer;
-              font-weight: 500;
-              transition: background-color 0.2s ease;
-            "
-          >
-            Load All Layers
-          </button>
+          <div>
+            <button
+              id="loadEverythingBtn"
+              style="
+                padding: 10px 20px;
+                font-size: 0.9em;
+                background: #2c3e50;
+                color: white;
+                border: 1px solid #34495e;
+                border-radius: 3px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: background-color 0.2s ease;
+                margin-right: 5px;
+              "
+            >
+              Load All
+            </button>
+            <button
+              id="clearEverythingBtn"
+              style="
+                padding: 10px 20px;
+                font-size: 0.9em;
+                background: #e74c3c;
+                color: white;
+                border: 1px solid #c0392b;
+                border-radius: 3px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: background-color 0.2s ease;
+              "
+            >
+              Clear All
+            </button>
+          </div>
         </div>
 
         <div class="layer-controls">
           <h3>Administrative Boundaries</h3>
+          <div style="margin-bottom: 10px; text-align: center">
+            <button
+              id="loadAllAdminBtn"
+              style="
+                padding: 8px 16px;
+                font-size: 0.85em;
+                background: #3498db;
+                color: white;
+                border: 1px solid #2980b9;
+                border-radius: 3px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: background-color 0.2s ease;
+                margin-right: 5px;
+              "
+            >
+              Load
+            </button>
+            <button
+              id="clearAllAdminBtn"
+              style="
+                padding: 8px 16px;
+                font-size: 0.85em;
+                background: #e74c3c;
+                color: white;
+                border: 1px solid #c0392b;
+                border-radius: 3px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: background-color 0.2s ease;
+              "
+            >
+              Clear
+            </button>
+          </div>
           <div id="layerControls">
             <!-- Administrative layer controls will be populated by JavaScript -->
           </div>
-        </div>
-
-        <div class="layer-controls">
-          <h3>Sharawani Data Layers</h3>
-          <div id="sharawaniControls">
-            <!-- Sharawani layer controls will be populated by JavaScript -->
-          </div>
-        </div>
-
-        <div class="layer-controls">
-          <h3>Combined Dataset</h3>
-          <div id="combinedControls">
-            <!-- Combined dataset controls will be populated by JavaScript -->
-          </div>
-        </div>
-
-        <div class="layer-controls">
-          <h3>Villages Dataset</h3>
           <div id="villagesControls">
             <!-- Villages dataset controls will be populated by JavaScript -->
           </div>
         </div>
 
         <div class="layer-controls">
-          <h3>IQ Air Devices</h3>
+          <h3>Data Layers</h3>
+          <div style="margin-bottom: 10px; text-align: center">
+            <button
+              id="loadAllDataBtn"
+              style="
+                padding: 8px 16px;
+                font-size: 0.85em;
+                background: #27ae60;
+                color: white;
+                border: 1px solid #229954;
+                border-radius: 3px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: background-color 0.2s ease;
+                margin-right: 5px;
+              "
+            >
+              Load All Data
+            </button>
+            <button
+              id="clearAllDataBtn"
+              style="
+                padding: 8px 16px;
+                font-size: 0.85em;
+                background: #e74c3c;
+                color: white;
+                border: 1px solid #c0392b;
+                border-radius: 3px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: background-color 0.2s ease;
+              "
+            >
+              Clear All Data
+            </button>
+          </div>
+          <div id="combinedControls">
+            <!-- Combined dataset controls will be populated by JavaScript -->
+          </div>
+          <div id="sharawaniControls">
+            <!-- Sharawani layer controls will be populated by JavaScript -->
+          </div>
           <div id="iqAirControls">
             <!-- IQ Air devices controls will be populated by JavaScript -->
           </div>
