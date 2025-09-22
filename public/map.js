@@ -396,12 +396,21 @@ class IraqLeafletMap {
 
   initMap() {
     return new Promise((resolve) => {
-      // Initialize Leaflet map centered on Iraq
+      // Define map boundaries tightly around Iraq
+      const southWest = L.latLng(29.0, 38.7); // Bottom-left corner
+      const northEast = L.latLng(37.5, 48.6); // Top-right corner
+      const bounds = L.latLngBounds(southWest, northEast);
+
+      // Initialize Leaflet map centered on Iraq with locked zoom and bounds
       this.map = L.map("leafletMap", {
-        center: [33.0, 44.0], // Iraq coordinates
+        center: [33.2, 43.7], // Centered on Iraq
         zoom: 6,
+        minZoom: 6, // Lock minimum zoom level
+        maxZoom: 18, // Lock maximum zoom level to current level
         zoomControl: true,
         attributionControl: true,
+        maxBounds: bounds, // Restrict panning to these bounds
+        maxBoundsViscosity: 1.0, // Make the bounds completely solid (1.0 = cannot move outside at all)
       });
 
       // Add base tile layer (OpenStreetMap)
@@ -410,7 +419,8 @@ class IraqLeafletMap {
         {
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 18,
+          maxZoom: 18, // Also limit the tile layer's max zoom
+          minZoom: 6, // And min zoom
         }
       );
 
@@ -423,6 +433,7 @@ class IraqLeafletMap {
           attribution:
             "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
           maxZoom: 18,
+          minZoom: 6,
         }
       );
 
@@ -432,6 +443,7 @@ class IraqLeafletMap {
           attribution:
             'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
           maxZoom: 17,
+          minZoom: 6,
         }
       );
 
